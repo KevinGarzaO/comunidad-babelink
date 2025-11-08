@@ -19,7 +19,6 @@ import { useAuth } from "../src/contexts/AuthContext";
 interface LoginModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onNavigate?: (page: string) => void;
 }
 
 export function LoginModal({ open, onOpenChange }: LoginModalProps) {

@@ -28,12 +28,10 @@ import {
   Film,
   Rocket,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-interface CreatorsProgramProps {
-  onNavigate: (page: string) => void;
-}
-
-function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
+function CreatorsProgram() {
+  const router = useRouter();
   const benefits = [
     {
       icon: <Video className="h-5 w-5" />,
@@ -122,7 +120,10 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
 
               <Button
                 size="lg"
-                onClick={() => onNavigate("preregistro")}
+                onClick={() => {
+                  router.push("/preregistro");
+                  window.scrollTo(0, 0);
+                }}
                 className="bg-[#FFCC00] text-[#333366] hover:bg-[#FFCC00]/90 text-xl px-12 py-6 h-auto shadow-2xl"
               >
                 Inscribirme Ahora por $54
@@ -168,7 +169,10 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
               </div>
               <Button
                 size="lg"
-                onClick={() => onNavigate("preregistro")}
+                onClick={() => {
+                  router.push("/preregistro");
+                  window.scrollTo(0, 0);
+                }}
                 className="bg-[#333366] text-white hover:bg-[#333366]/90"
               >
                 Comenzar Ahora
@@ -199,7 +203,7 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
             </p>
             <Button
               size="lg"
-              onClick={() => onNavigate("preregistro")}
+              onClick={() => router.push("/preregistro")}
               className="bg-[#FFCC00] text-[#333366] hover:bg-[#FFCC00]/90"
             >
               Ver Planes y Precios
@@ -292,7 +296,7 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
 
               <Button
                 size="lg"
-                onClick={() => onNavigate("preregistro")}
+                onClick={() => router.push("/preregistro")}
                 className="bg-[#FFCC00] text-[#333366] hover:bg-[#FFCC00]/90 text-lg px-12"
               >
                 Registrarme Ahora
@@ -332,7 +336,7 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
               </p>
               <Button
                 size="lg"
-                onClick={() => onNavigate("preregistro")}
+                onClick={() => router.push("/preregistro")}
                 className="bg-[#FFCC00] text-[#333366] hover:bg-[#FFCC00]/90"
               >
                 Inscribirme al Programa
@@ -666,7 +670,7 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
                     </p>
                     <Button
                       size="lg"
-                      onClick={() => onNavigate("preregistro")}
+                      onClick={() => router.push("/preregistro")}
                       className="bg-[#333366] text-white hover:bg-[#333366]/90 text-lg px-12"
                     >
                       Quiero aprender esto
@@ -739,7 +743,7 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
               </div>
               <Button
                 size="lg"
-                onClick={() => onNavigate("preregistro")}
+                onClick={() => router.push("/preregistro")}
                 className="bg-[#333366] text-white hover:bg-[#333366]/90"
               >
                 Formar Parte de la Comunidad
@@ -806,7 +810,7 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
               <Button
                 size="lg"
-                onClick={() => onNavigate("preregistro")}
+                onClick={() => router.push("/preregistro")}
                 className="bg-[#333366] text-white hover:bg-[#333366]/90 text-xl px-12 py-6 h-auto shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
               >
                 Inscribirme por Solo $9/mes
@@ -1051,7 +1055,7 @@ function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
                   </p>
                   <Button
                     size="lg"
-                    onClick={() => onNavigate("preregistro")}
+                    onClick={() => router.push("/preregistro")}
                     className="bg-[#333366] text-white hover:bg-[#333366]/90"
                   >
                     Inscribirme al Programa

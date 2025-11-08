@@ -1,14 +1,12 @@
 import { Button } from "./ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { LoginModal } from "./LoginModal";
 
-interface HeroProps {
-  onNavigate?: (page: string) => void;
-}
-
-export function Hero({ onNavigate }: HeroProps) {
+export function Hero() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -35,7 +33,7 @@ export function Hero({ onNavigate }: HeroProps) {
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start">
               <Button
                 className="bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366] px-8 py-6 text-lg"
-                onClick={() => onNavigate?.("comunidad")}
+                onClick={() => router.push("/comunidad")}
               >
                 Explorar Artículos
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -44,11 +42,7 @@ export function Hero({ onNavigate }: HeroProps) {
           </div>
         </div>
       </section>
-      <LoginModal
-        open={isLoginOpen}
-        onOpenChange={setIsLoginOpen}
-        onNavigate={onNavigate}
-      />
+      <LoginModal open={isLoginOpen} onOpenChange={setIsLoginOpen} />
     </>
   );
 }

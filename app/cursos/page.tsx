@@ -14,12 +14,10 @@ import {
   Calendar,
   Target,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-interface CoursesLandingProps {
-  onNavigate: (page: string) => void;
-}
-
-function CoursesLanding({ onNavigate }: CoursesLandingProps) {
+function CoursesLanding() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
@@ -152,7 +150,7 @@ function CoursesLanding({ onNavigate }: CoursesLandingProps) {
                       </div>
                       <Button
                         size="lg"
-                        onClick={() => onNavigate("creadores")}
+                        onClick={() => router.push("/creadores")}
                         className="bg-[#333366] text-white hover:bg-[#333366]/90"
                       >
                         Ver Programa Completo
@@ -258,7 +256,7 @@ function CoursesLanding({ onNavigate }: CoursesLandingProps) {
                 </p>
                 <Button
                   size="lg"
-                  onClick={() => onNavigate("creadores")}
+                  onClick={() => router.push("/creadores")}
                   className="bg-[#FFCC00] text-[#333366] hover:bg-[#FFCC00]/90 text-lg px-12"
                 >
                   Comenzar Ahora
