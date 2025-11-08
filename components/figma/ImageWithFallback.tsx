@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { ErrorImage } from "../ErrorImage";
 import { CustomImage } from "../CustomImage";

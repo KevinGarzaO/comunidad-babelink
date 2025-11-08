@@ -1,9 +1,11 @@
+"use client";
+
 import { useState } from "react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Input } from "./ui/input";
+import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Input } from "../../components/ui/input";
 import {
   Heart,
   MessageCircle,
@@ -22,12 +24,12 @@ import {
   popularTags,
   communityUsers,
   CommunityPost,
-} from "../src/data/community";
-import { BlogPost } from "./BlogPost";
-import { Post } from "../src/data/posts";
-import { LoginModal } from "./LoginModal";
-import { SocialMediaLinks } from "./SocialMediaLinks";
-import { useAuth } from "../src/contexts/AuthContext";
+} from "../../src/data/community";
+import { BlogPost } from "../../components/BlogPost";
+import { Post } from "../../src/data/posts";
+import { LoginModal } from "../../components/LoginModal";
+import { SocialMediaLinks } from "../../components/SocialMediaLinks";
+import { useAuth } from "../../src/contexts/AuthContext";
 
 interface CommunityPageProps {
   onNavigate?: (page: string) => void;
@@ -35,7 +37,7 @@ interface CommunityPageProps {
   onCreatePost?: () => void;
 }
 
-export function CommunityPage({
+function CommunityPage({
   onNavigate,
   onUserClick,
   onCreatePost,
@@ -592,3 +594,5 @@ function PostCard({
     </Card>
   );
 }
+
+export default CommunityPage;

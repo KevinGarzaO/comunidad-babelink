@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Hero } from "../../components/Hero";
-import { BlogCategories } from "../../components/BlogCategories";
-import { BlogPost } from "../../components/BlogPost";
-import { Categories } from "../../components/Categories";
-import { CreatorsPromo } from "../../components/CreatorsPromo";
-import { FeaturedPosts } from "../../components/FeaturedPosts";
-import { Newsletter } from "../../components/Newsletter";
-import { ScrollToTop } from "../../components/ScrollToTop";
-import { SearchResults } from "../../components/SearchResults";
-import { posts } from "../data/posts";
+import { Hero } from "../components/Hero";
+import { BlogCategories } from "../components/BlogCategories";
+import { BlogPost } from "../components/BlogPost";
+import { Categories } from "../components/Categories";
+import { CreatorsPromo } from "../components/CreatorsPromo";
+import { FeaturedPosts } from "../components/FeaturedPosts";
+import { Newsletter } from "../components/Newsletter";
+import { ScrollToTop } from "../components/ScrollToTop";
+import { SearchResults } from "../components/SearchResults";
+import { posts } from "../src/data/posts";
 
 interface BlogPageProps {
   onSearch: (query: string) => void;
