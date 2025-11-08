@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "../contexts/AuthContext";
+import { Toaster } from "sonner"; // 👈 si usas sonner para notificaciones
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,15 +23,26 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const renderPage = () => {
+    return children; // 👈 Next.js renderiza aquí la página actual
+  };
+
   return (
-    <html lang="en">
+    <html lang="en" className="light">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          <div className="min-h-screen bg-white">
+            <Header showSearch={true} />
+            {renderPage()}
+            <Footer />
+            <Toaster position="top-center" richColors />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );
