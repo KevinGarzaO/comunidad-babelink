@@ -1,12 +1,14 @@
+"use client";
+
 import { ArrowLeft } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
 
 interface TermsOfServiceProps {
   onBack: () => void;
 }
 
-export function TermsOfService({ onBack }: TermsOfServiceProps) {
+function TermsOfService({ onBack }: TermsOfServiceProps) {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
@@ -181,3 +183,4 @@ export function TermsOfService({ onBack }: TermsOfServiceProps) {
     </div>
   );
 }
+export default TermsOfService;

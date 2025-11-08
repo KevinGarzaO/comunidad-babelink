@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowLeft,
   Users,
@@ -6,14 +8,14 @@ import {
   Share2,
   CheckCircle,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
 
 interface CommunityGuideProps {
   onBack: () => void;
 }
 
-export function CommunityGuide({ onBack }: CommunityGuideProps) {
+function CommunityGuide({ onBack }: CommunityGuideProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -271,3 +273,5 @@ export function CommunityGuide({ onBack }: CommunityGuideProps) {
     </div>
   );
 }
+
+export default CommunityGuide;

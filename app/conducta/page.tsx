@@ -1,12 +1,20 @@
-import { ArrowLeft, Shield, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+"use client";
+
+import {
+  ArrowLeft,
+  Shield,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
 
 interface CodeOfConductProps {
   onBack: () => void;
 }
 
-export function CodeOfConduct({ onBack }: CodeOfConductProps) {
+function CodeOfConduct({ onBack }: CodeOfConductProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -25,7 +33,8 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
             <h1 className="text-4xl">Código de Conducta</h1>
           </div>
           <p className="text-lg text-gray-200 max-w-3xl">
-            Nuestras normas para mantener una comunidad segura, respetuosa y productiva para todos.
+            Nuestras normas para mantener una comunidad segura, respetuosa y
+            productiva para todos.
           </p>
         </div>
       </div>
@@ -36,14 +45,16 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
         <div className="mb-12">
           <h2 className="text-3xl text-[#333366] mb-4">Nuestro Compromiso</h2>
           <p className="text-gray-700 leading-relaxed mb-4">
-            En Babelink, nos comprometemos a proporcionar un ambiente acogedor, seguro e inspirador para todos 
-            los miembros de nuestra comunidad, independientemente de su nivel de experiencia, género, identidad 
-            y expresión de género, orientación sexual, discapacidad, apariencia personal, raza, etnia, edad, 
-            religión o nacionalidad.
+            En Babelink, nos comprometemos a proporcionar un ambiente acogedor,
+            seguro e inspirador para todos los miembros de nuestra comunidad,
+            independientemente de su nivel de experiencia, género, identidad y
+            expresión de género, orientación sexual, discapacidad, apariencia
+            personal, raza, etnia, edad, religión o nacionalidad.
           </p>
           <p className="text-gray-700 leading-relaxed">
-            Este código de conducta establece las expectativas para todos aquellos que participan en nuestra 
-            comunidad, así como las consecuencias de comportamientos inaceptables.
+            Este código de conducta establece las expectativas para todos
+            aquellos que participan en nuestra comunidad, así como las
+            consecuencias de comportamientos inaceptables.
           </p>
         </div>
 
@@ -52,49 +63,60 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-6">
               <CheckCircle className="h-8 w-8 text-green-600" />
-              <h2 className="text-2xl text-[#333366]">Comportamientos Esperados</h2>
+              <h2 className="text-2xl text-[#333366]">
+                Comportamientos Esperados
+              </h2>
             </div>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Respeto mutuo:</strong> Trata a todos los miembros con respeto y consideración, valorando diferentes perspectivas y experiencias.
+                  <strong>Respeto mutuo:</strong> Trata a todos los miembros con
+                  respeto y consideración, valorando diferentes perspectivas y
+                  experiencias.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Comunicación constructiva:</strong> Participa de manera auténtica y activa, aportando de forma constructiva a las conversaciones.
+                  <strong>Comunicación constructiva:</strong> Participa de
+                  manera auténtica y activa, aportando de forma constructiva a
+                  las conversaciones.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Colaboración:</strong> Busca oportunidades para colaborar y ayudar a otros miembros de la comunidad.
+                  <strong>Colaboración:</strong> Busca oportunidades para
+                  colaborar y ayudar a otros miembros de la comunidad.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Contenido de calidad:</strong> Comparte información precisa, relevante y bien fundamentada.
+                  <strong>Contenido de calidad:</strong> Comparte información
+                  precisa, relevante y bien fundamentada.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Atribución adecuada:</strong> Da crédito a las fuentes originales y respeta los derechos de autor.
+                  <strong>Atribución adecuada:</strong> Da crédito a las fuentes
+                  originales y respeta los derechos de autor.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Privacidad:</strong> Respeta la privacidad de los demás y no compartas información personal sin permiso.
+                  <strong>Privacidad:</strong> Respeta la privacidad de los
+                  demás y no compartas información personal sin permiso.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Ayuda y mentorización:</strong> Apoya a los nuevos miembros y comparte tu conocimiento de manera generosa.
+                  <strong>Ayuda y mentorización:</strong> Apoya a los nuevos
+                  miembros y comparte tu conocimiento de manera generosa.
                 </span>
               </li>
             </ul>
@@ -106,49 +128,59 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-6">
               <XCircle className="h-8 w-8 text-red-600" />
-              <h2 className="text-2xl text-[#333366]">Comportamientos Inaceptables</h2>
+              <h2 className="text-2xl text-[#333366]">
+                Comportamientos Inaceptables
+              </h2>
             </div>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Acoso y discriminación:</strong> No se tolerará ningún tipo de acoso, discriminación o comportamiento intimidatorio.
+                  <strong>Acoso y discriminación:</strong> No se tolerará ningún
+                  tipo de acoso, discriminación o comportamiento intimidatorio.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Contenido ofensivo:</strong> Lenguaje o imágenes sexualizadas, violentas u ofensivas no están permitidas.
+                  <strong>Contenido ofensivo:</strong> Lenguaje o imágenes
+                  sexualizadas, violentas u ofensivas no están permitidas.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Spam y autopromoción excesiva:</strong> No uses la plataforma únicamente para promocionar tus productos o servicios.
+                  <strong>Spam y autopromoción excesiva:</strong> No uses la
+                  plataforma únicamente para promocionar tus productos o
+                  servicios.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Desinformación:</strong> No compartas información falsa, engañosa o no verificada deliberadamente.
+                  <strong>Desinformación:</strong> No compartas información
+                  falsa, engañosa o no verificada deliberadamente.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Plagio:</strong> No copies contenido de otros sin dar el crédito apropiado.
+                  <strong>Plagio:</strong> No copies contenido de otros sin dar
+                  el crédito apropiado.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Suplantación:</strong> No te hagas pasar por otra persona u organización.
+                  <strong>Suplantación:</strong> No te hagas pasar por otra
+                  persona u organización.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">
-                  <strong>Trolling:</strong> Comentarios provocadores diseñados únicamente para molestar o generar conflictos.
+                  <strong>Trolling:</strong> Comentarios provocadores diseñados
+                  únicamente para molestar o generar conflictos.
                 </span>
               </li>
             </ul>
@@ -169,19 +201,26 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
               <div className="bg-white rounded-lg p-4">
                 <h3 className="text-lg text-[#333366] mb-2">1. Advertencia</h3>
                 <p className="text-gray-600 text-sm">
-                  Para infracciones menores o de primera vez, se emitirá una advertencia explicando el comportamiento inapropiado.
+                  Para infracciones menores o de primera vez, se emitirá una
+                  advertencia explicando el comportamiento inapropiado.
                 </p>
               </div>
               <div className="bg-white rounded-lg p-4">
-                <h3 className="text-lg text-[#333366] mb-2">2. Suspensión Temporal</h3>
+                <h3 className="text-lg text-[#333366] mb-2">
+                  2. Suspensión Temporal
+                </h3>
                 <p className="text-gray-600 text-sm">
-                  Para infracciones repetidas o más graves, la cuenta puede ser suspendida temporalmente.
+                  Para infracciones repetidas o más graves, la cuenta puede ser
+                  suspendida temporalmente.
                 </p>
               </div>
               <div className="bg-white rounded-lg p-4">
-                <h3 className="text-lg text-[#333366] mb-2">3. Expulsión Permanente</h3>
+                <h3 className="text-lg text-[#333366] mb-2">
+                  3. Expulsión Permanente
+                </h3>
                 <p className="text-gray-600 text-sm">
-                  Para infracciones graves o patrones de comportamiento inaceptable, la cuenta puede ser eliminada permanentemente.
+                  Para infracciones graves o patrones de comportamiento
+                  inaceptable, la cuenta puede ser eliminada permanentemente.
                 </p>
               </div>
             </div>
@@ -193,8 +232,9 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
           <CardContent className="p-8">
             <h2 className="text-2xl text-[#333366] mb-4">Reportar Problemas</h2>
             <p className="text-gray-700 mb-4">
-              Si experimentas o presencias un comportamiento inaceptable, por favor repórtalo inmediatamente. 
-              Todas las denuncias serán revisadas e investigadas de manera confidencial.
+              Si experimentas o presencias un comportamiento inaceptable, por
+              favor repórtalo inmediatamente. Todas las denuncias serán
+              revisadas e investigadas de manera confidencial.
             </p>
             <p className="text-gray-700 mb-6">
               Puedes reportar problemas de las siguientes maneras:
@@ -206,7 +246,8 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
               </li>
               <li className="flex items-center gap-2 text-gray-700">
                 <CheckCircle className="h-5 w-5 text-[#333366]" />
-                Contactando directamente al equipo de moderación en: <strong>moderacion@babelink.com</strong>
+                Contactando directamente al equipo de moderación en:{" "}
+                <strong>moderacion@babelink.com</strong>
               </li>
             </ul>
             <Button className="bg-[#333366] hover:bg-[#333366]/90 text-white">
@@ -228,3 +269,5 @@ export function CodeOfConduct({ onBack }: CodeOfConductProps) {
     </div>
   );
 }
+
+export default CodeOfConduct;

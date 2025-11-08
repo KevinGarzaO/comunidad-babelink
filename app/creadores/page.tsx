@@ -1,12 +1,14 @@
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+"use client";
+
+import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "./ui/accordion";
+} from "../../components/ui/accordion";
 import {
   Sparkles,
   Video,
@@ -31,7 +33,7 @@ interface CreatorsProgramProps {
   onNavigate: (page: string) => void;
 }
 
-export function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
+function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
   const benefits = [
     {
       icon: <Video className="h-5 w-5" />,
@@ -1064,3 +1066,5 @@ export function CreatorsProgram({ onNavigate }: CreatorsProgramProps) {
     </div>
   );
 }
+
+export default CreatorsProgram;

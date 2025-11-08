@@ -1,19 +1,21 @@
+"use client";
+
 import { ArrowLeft, HelpCircle } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../../components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "./ui/accordion";
-import { Card, CardContent } from "./ui/card";
+} from "../../components/ui/accordion";
+import { Card, CardContent } from "../../components/ui/card";
 
 interface FAQsProps {
   onBack: () => void;
   onNavigate?: (section: string) => void;
 }
 
-export function FAQs({ onBack, onNavigate }: FAQsProps) {
+function FAQs({ onBack, onNavigate }: FAQsProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -305,3 +307,5 @@ export function FAQs({ onBack, onNavigate }: FAQsProps) {
     </div>
   );
 }
+
+export default FAQs;
