@@ -23,19 +23,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Search, Menu, X, ChevronDown, LogOut, UserCircle } from "lucide-react";
+import { Menu, ChevronDown, LogOut, UserCircle } from "lucide-react";
 
-interface HeaderProps {
-  showSearch?: boolean;
-}
-
-export function Header({ showSearch = true }: HeaderProps) {
+export function Header() {
   const router = useRouter();
   const pathname = usePathname(); // 👈 Saber en qué página estás
   const { user, logout, isAuthenticated } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const handleLogout = () => {
@@ -88,21 +83,6 @@ export function Header({ showSearch = true }: HeaderProps) {
 
         {/* SEARCH & PROFILE */}
         <div className="flex items-center gap-2">
-          {showSearch && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden md:flex"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-            >
-              {isSearchOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Search className="h-5 w-5" />
-              )}
-            </Button>
-          )}
-
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
