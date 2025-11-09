@@ -25,32 +25,20 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Avatar } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { Post, posts } from "../src/data/posts";
+import { posts } from "../src/data/posts";
 import { toast } from "sonner";
 import { LoginModal } from "./LoginModal";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 import { useAuth } from "../src/contexts/AuthContext";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface BlogPostProps {
-  post: Post;
-  onBack: () => void;
-  onPostClick: (postId: number) => void;
-  isCommunityPost?: boolean;
-  authorName?: string;
-  onNavigate?: (section: string) => void;
-  onAuthorClick?: () => void;
+  slug: string;
 }
 
-export function BlogPost({
-  post,
-  onBack,
-  onPostClick,
-  isCommunityPost = false,
-  authorName,
-  onNavigate,
-  onAuthorClick,
-}: BlogPostProps) {
+export function BlogPost({ slug }: BlogPostProps) {
+  const router = useRouter();
   const { user: currentUser } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
   const [donationAmount, setDonationAmount] = useState<number>(5);
@@ -93,10 +81,15 @@ export function BlogPost({
     },
   ]);
   const [newComment, setNewComment] = useState("");
+  const post = posts.find((p) => p.slug === slug);
+  if (!post) {
+    return <div>Artículo no encontrado.</div>;
+  }
 
-  const relatedPosts = posts
-    .filter((p) => p.category === post.category && p.id !== post.id)
-    .slice(0, 3);
+  const relatedPosts =
+    posts
+      ?.filter((p) => p.category === post.category && p.id !== post.id)
+      ?.slice(0, 3) || [];
 
   const handleShare = (platform: string) => {
     toast.success(`Compartir en ${platform}`);
@@ -164,11 +157,11 @@ export function BlogPost({
         <div className="container mx-auto px-4 py-4">
           <Button
             variant="ghost"
-            onClick={onBack}
+            onClick={router.back}
             className="hover:bg-gray-100"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {isCommunityPost ? "Volver a la comunidad" : "Volver al blog"}
+            Volver a la comunidad
           </Button>
         </div>
       </div>
@@ -510,7 +503,9 @@ export function BlogPost({
                       <Button
                         variant="outline"
                         className="border-[#333366] text-[#333366] hover:bg-[#333366] hover:text-white w-full"
-                        onClick={onAuthorClick}
+                        onClick={() =>
+                          router.push(`/comunidad/${post.author.id}`)
+                        }
                       >
                         Ver perfil
                       </Button>
@@ -633,13 +628,13 @@ export function BlogPost({
               </Card>
 
               {/* CTA Programa de Creadores - Solo para posts de comunidad */}
-              {isCommunityPost && authorName && (
+              {post.author.name && (
                 <Card className="bg-linear-to-br from-[#333366] to-[#5a5a8a] text-white border-0">
                   <CardContent className="p-6">
                     <div className="text-center">
                       <div className="text-4xl mb-3">🚀</div>
                       <h3 className="text-xl mb-3">
-                        {authorName} ya escribió su contenido
+                        {post.author.name} ya escribió su contenido
                       </h3>
                       <p className="text-sm text-gray-200 mb-4">
                         Tú también puedes compartir tus conocimientos uniéndote
@@ -654,7 +649,7 @@ export function BlogPost({
                       </div>
                       <Button
                         className="w-full bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366]"
-                        onClick={() => onNavigate?.("creadores")}
+                        onClick={() => router.push("/creadores")}
                       >
                         Únete al Programa
                       </Button>
@@ -681,7 +676,9 @@ export function BlogPost({
                   className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border-2 border-transparent hover:border-[#FFCC00]/20"
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
-                    onPostClick(relatedPost.id);
+                    router.push(
+                      `/comunidad/${post.author.id}/${relatedPost.slug}`
+                    );
                   }}
                 >
                   <div className="relative overflow-hidden aspect-video">

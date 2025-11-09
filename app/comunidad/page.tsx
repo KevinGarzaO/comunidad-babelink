@@ -26,11 +26,11 @@ import {
   CommunityPost,
 } from "../../src/data/community";
 import { BlogPost } from "../../components/BlogPost";
-import { Post } from "../../src/data/posts";
 import { LoginModal } from "../../components/LoginModal";
 import { SocialMediaLinks } from "../../components/SocialMediaLinks";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { posts } from "@/data/posts";
 
 interface CommunityPageProps {
   onNavigate?: (page: string) => void;
@@ -67,66 +67,17 @@ function CommunityPage({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleBackToCommunity = () => {
-    setSelectedPostId(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const selectedCommunityPost = selectedPostId
     ? communityPosts.find((p) => p.id === selectedPostId)
     : null;
 
   // Convertir CommunityPost a Post para usar el mismo visualizador
-  const convertToPost = (communityPost: CommunityPost): Post => {
-    return {
-      id: communityPost.id,
-      title: communityPost.title,
-      excerpt: communityPost.excerpt,
-      category: communityPost.tags[0] || "Comunidad",
-      categoryColor: "#333366",
-      readTime: `${communityPost.readTime} min`,
-      date: communityPost.publishedAt,
-      image:
-        communityPost.coverImage ||
-        "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbiUyMG1lZXRpbmd8ZW58MXx8fHwxNzYxOTg2ODg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      author: {
-        name: communityPost.author.name,
-        avatar: communityPost.author.avatar,
-        role: communityPost.author.bio,
-      },
-      content: {
-        introduction: communityPost.excerpt,
-        sections: [
-          {
-            title: "Contenido principal",
-            content: communityPost.content,
-          },
-          {
-            title: "Más detalles",
-            content:
-              "Este contenido ha sido compartido por un miembro activo de nuestra comunidad. En Babelink valoramos cada contribución y fomentamos el intercambio de conocimientos entre creadores.",
-          },
-        ],
-        conclusion: `Gracias por leer este post de ${communityPost.author.name}. Únete a la conversación y comparte tus propias experiencias en la comunidad de Babelink.`,
-      },
-      tags: communityPost.tags,
-    };
-  };
 
   // Si hay un post seleccionado, mostrar solo el post
   if (selectedCommunityPost) {
-    const post = convertToPost(selectedCommunityPost);
     return (
       <div className="min-h-screen bg-white">
-        <BlogPost
-          post={post}
-          onBack={handleBackToCommunity}
-          onPostClick={handlePostClick}
-          isCommunityPost={true}
-          authorName={selectedCommunityPost.author.name}
-          onNavigate={onNavigate}
-          onAuthorClick={() => onUserClick?.(selectedCommunityPost.author.id)}
-        />
+        <BlogPost slug={posts[0].slug} />
       </div>
     );
   }
@@ -300,15 +251,7 @@ function CommunityPage({
               </Card>
             ) : (
               filteredPosts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onClick={() => handlePostClick(post.id)}
-                  onAuthorClick={(e) => {
-                    e.stopPropagation();
-                    onUserClick?.(post.author.id);
-                  }}
-                />
+                <PostCard key={post.id} post={post} />
               ))
             )}
           </main>
@@ -455,15 +398,8 @@ function CommunityPage({
   );
 }
 
-function PostCard({
-  post,
-  onClick,
-  onAuthorClick,
-}: {
-  post: CommunityPost;
-  onClick: () => void;
-  onAuthorClick: (e: React.MouseEvent) => void;
-}) {
+function PostCard({ post }: { post: CommunityPost }) {
+  const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likesCount, setLikesCount] = useState(post.reactions);
@@ -482,14 +418,18 @@ function PostCard({
   return (
     <Card
       className="hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-      onClick={onClick}
+      onClick={() => {
+        router.push(`/comunidad/${post.author.id}/${post.slug}`);
+      }}
     >
       <CardContent className="p-0">
         <div className="flex gap-4 p-4">
           {/* Author Avatar */}
           <div
             className="flex-linear-0 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={onAuthorClick}
+            onClick={() => {
+              router.push(`/comunidad/${post.author.id}`);
+            }}
           >
             <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200">
               <ImageWithFallback
@@ -506,7 +446,9 @@ function PostCard({
             <div className="flex items-center gap-2 mb-2">
               <span
                 className="text-sm text-[#333366] hover:underline cursor-pointer"
-                onClick={onAuthorClick}
+                onClick={() => {
+                  router.push(`/comunidad/${post.author.id}`);
+                }}
               >
                 {post.author.name}
               </span>

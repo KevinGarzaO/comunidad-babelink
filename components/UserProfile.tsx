@@ -1131,7 +1131,7 @@ export function UserProfile({
                         </p>
                         <Button
                           className="w-full bg-[#333366] hover:bg-[#333366]/90 text-white"
-                          onClick={() => router.push("/preregistro")}
+                          onClick={() => router.push("/creadores")}
                         >
                           Únete al Programa
                         </Button>

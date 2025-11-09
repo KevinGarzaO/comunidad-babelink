@@ -33,7 +33,7 @@ export function Footer() {
             </p>
             <div className="flex gap-3">
               <a
-                href="https://www.facebook.com/babelink"
+                href="https://www.facebook.com/BabelinkIA"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-[#E2E3F7] rounded-full flex items-center justify-center hover:bg-[#FFCC00] transition-all duration-300"
@@ -42,7 +42,7 @@ export function Footer() {
                 <Facebook className="h-4 w-4 text-[#333366]" />
               </a>
               <a
-                href="https://www.instagram.com/babelink"
+                href="https://www.instagram.com/babelink.ia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-[#E2E3F7] rounded-full flex items-center justify-center hover:bg-[#FFCC00] transition-all duration-300"
@@ -51,7 +51,7 @@ export function Footer() {
                 <Instagram className="h-4 w-4 text-[#333366]" />
               </a>
               <a
-                href="https://www.youtube.com/@babelink"
+                href="https://www.youtube.com/@babelink_ia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-[#E2E3F7] rounded-full flex items-center justify-center hover:bg-[#FFCC00] transition-all duration-300"
@@ -60,7 +60,7 @@ export function Footer() {
                 <Youtube className="h-4 w-4 text-[#333366]" />
               </a>
               <a
-                href="https://www.tiktok.com/@babelink"
+                href="https://www.tiktok.com/@babelink.ia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-[#E2E3F7] rounded-full flex items-center justify-center hover:bg-[#FFCC00] transition-all duration-300"

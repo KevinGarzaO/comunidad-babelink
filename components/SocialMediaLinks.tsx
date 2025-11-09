@@ -20,8 +20,8 @@ export function SocialMediaLinks({ variant = "full" }: SocialMediaLinksProps) {
     {
       name: "Facebook",
       icon: <Facebook className="h-5 w-5" />,
-      url: "https://www.facebook.com/babelink",
-      followers: "2.5K",
+      url: "https://www.facebook.com/BabelinkIA",
+      followers: "+1K",
       bgColor: "bg-[#1877F2]",
       hoverColor: "hover:scale-105",
       iconColor: "text-white",
@@ -29,8 +29,8 @@ export function SocialMediaLinks({ variant = "full" }: SocialMediaLinksProps) {
     {
       name: "Instagram",
       icon: <Instagram className="h-5 w-5" />,
-      url: "https://www.instagram.com/babelink",
-      followers: "3.2K",
+      url: "https://www.instagram.com/babelink.ia",
+      followers: "+100",
       bgColor: "bg-gradient-to-br from-[#E1306C] via-[#C13584] to-[#833AB4]",
       hoverColor: "hover:scale-105",
       iconColor: "text-white",
@@ -38,8 +38,8 @@ export function SocialMediaLinks({ variant = "full" }: SocialMediaLinksProps) {
     {
       name: "YouTube",
       icon: <Youtube className="h-5 w-5" />,
-      url: "https://www.youtube.com/@babelink",
-      followers: "1.8K",
+      url: "https://www.youtube.com/@babelink_ia",
+      followers: "+100",
       bgColor: "bg-[#FF0000]",
       hoverColor: "hover:scale-105",
       iconColor: "text-white",
@@ -47,8 +47,8 @@ export function SocialMediaLinks({ variant = "full" }: SocialMediaLinksProps) {
     {
       name: "TikTok",
       icon: <FaTiktok className="h-5 w-5" />,
-      url: "https://www.tiktok.com/@babelink",
-      followers: "4.1K",
+      url: "https://www.tiktok.com/@babelink.ia",
+      followers: "+10",
       bgColor: "bg-black",
       hoverColor: "hover:scale-105",
       iconColor: "text-white",
