@@ -9,20 +9,19 @@ import {
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { useRouter } from "next/navigation";
 
-interface CodeOfConductProps {
-  onBack: () => void;
-}
+function CodeOfConduct() {
+  const router = useRouter();
 
-function CodeOfConduct({ onBack }: CodeOfConductProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#333366] to-[#5a5a8a] text-white py-12">
+      <div className="bg-linear-to-br from-[#333366] to-[#5a5a8a] text-white py-12">
         <div className="container mx-auto px-4">
           <Button
             variant="ghost"
-            onClick={onBack}
+            onClick={router.back}
             className="mb-4 text-white hover:bg-white/10"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -69,7 +68,7 @@ function CodeOfConduct({ onBack }: CodeOfConductProps) {
             </div>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Respeto mutuo:</strong> Trata a todos los miembros con
                   respeto y consideración, valorando diferentes perspectivas y
@@ -77,7 +76,7 @@ function CodeOfConduct({ onBack }: CodeOfConductProps) {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Comunicación constructiva:</strong> Participa de
                   manera auténtica y activa, aportando de forma constructiva a
@@ -85,35 +84,35 @@ function CodeOfConduct({ onBack }: CodeOfConductProps) {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Colaboración:</strong> Busca oportunidades para
                   colaborar y ayudar a otros miembros de la comunidad.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Contenido de calidad:</strong> Comparte información
                   precisa, relevante y bien fundamentada.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Atribución adecuada:</strong> Da crédito a las fuentes
                   originales y respeta los derechos de autor.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Privacidad:</strong> Respeta la privacidad de los
                   demás y no compartas información personal sin permiso.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#FFCC00] rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Ayuda y mentorización:</strong> Apoya a los nuevos
                   miembros y comparte tu conocimiento de manera generosa.
@@ -134,21 +133,21 @@ function CodeOfConduct({ onBack }: CodeOfConductProps) {
             </div>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Acoso y discriminación:</strong> No se tolerará ningún
                   tipo de acoso, discriminación o comportamiento intimidatorio.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Contenido ofensivo:</strong> Lenguaje o imágenes
                   sexualizadas, violentas u ofensivas no están permitidas.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Spam y autopromoción excesiva:</strong> No uses la
                   plataforma únicamente para promocionar tus productos o
@@ -156,28 +155,28 @@ function CodeOfConduct({ onBack }: CodeOfConductProps) {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Desinformación:</strong> No compartas información
                   falsa, engañosa o no verificada deliberadamente.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Plagio:</strong> No copies contenido de otros sin dar
                   el crédito apropiado.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Suplantación:</strong> No te hagas pasar por otra
                   persona u organización.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                 <span className="text-gray-700">
                   <strong>Trolling:</strong> Comentarios provocadores diseñados
                   únicamente para molestar o generar conflictos.
@@ -188,7 +187,7 @@ function CodeOfConduct({ onBack }: CodeOfConductProps) {
         </Card>
 
         {/* Consecuencias */}
-        <Card className="mb-8 bg-gradient-to-br from-[#E2E3F7] to-[#F6CBCA]/30 border-0">
+        <Card className="mb-8 bg-linear-to-br from-[#E2E3F7] to-[#F6CBCA]/30 border-0">
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-6">
               <AlertTriangle className="h-8 w-8 text-[#333366]" />

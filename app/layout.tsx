@@ -37,7 +37,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <div className="min-h-screen bg-white">
-            <Header showSearch={true} />
+            <Header />
             {renderPage()}
             <Footer />
             <Toaster position="top-center" richColors />

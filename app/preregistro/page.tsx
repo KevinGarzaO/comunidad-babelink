@@ -29,12 +29,10 @@ import {
   Rocket,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-interface PreRegistroProps {
-  onBack: () => void;
-}
-
-function PreRegistro({ onBack }: PreRegistroProps) {
+function PreRegistro() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -119,9 +117,9 @@ function PreRegistro({ onBack }: PreRegistroProps) {
         description: "Te contactaremos pronto con más información.",
       });
 
-      // Reset after 3 seconds
+      // Reset after 10 seconds
       setTimeout(() => {
-        onBack();
+        router.back();
       }, 10000);
     }, 2000);
   };
@@ -168,7 +166,7 @@ function PreRegistro({ onBack }: PreRegistroProps) {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={onBack}
+            onClick={() => router.back()}
             className="mb-4 text-[#333366] hover:text-[#333366]/80"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

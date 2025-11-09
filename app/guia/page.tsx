@@ -10,12 +10,10 @@ import {
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { useRouter } from "next/navigation";
 
-interface CommunityGuideProps {
-  onBack: () => void;
-}
-
-function CommunityGuide({ onBack }: CommunityGuideProps) {
+function CommunityGuide() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -23,7 +21,7 @@ function CommunityGuide({ onBack }: CommunityGuideProps) {
         <div className="container mx-auto px-4">
           <Button
             variant="ghost"
-            onClick={onBack}
+            onClick={router.back}
             className="mb-4 text-white hover:bg-white/10"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />

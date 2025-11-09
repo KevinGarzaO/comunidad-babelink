@@ -120,9 +120,7 @@ export function Header() {
           ) : pathname.startsWith("/creadores") ? (
             <Button
               className="hidden md:flex bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366]"
-              onClick={() =>
-                console.log("Redirigir a la suscripción o checkout")
-              }
+              onClick={() => router.push("/preregistro")}
             >
               Únete por $54 (6 meses)
             </Button>

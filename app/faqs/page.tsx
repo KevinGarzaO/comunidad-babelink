@@ -9,13 +9,10 @@ import {
   AccordionTrigger,
 } from "../../components/ui/accordion";
 import { Card, CardContent } from "../../components/ui/card";
+import { useRouter } from "next/navigation";
 
-interface FAQsProps {
-  onBack: () => void;
-  onNavigate?: (section: string) => void;
-}
-
-function FAQs({ onBack, onNavigate }: FAQsProps) {
+function FAQs() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -23,7 +20,7 @@ function FAQs({ onBack, onNavigate }: FAQsProps) {
         <div className="container mx-auto px-4">
           <Button
             variant="ghost"
-            onClick={onBack}
+            onClick={router.back}
             className="mb-4 text-white hover:bg-white/10"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -293,7 +290,7 @@ function FAQs({ onBack, onNavigate }: FAQsProps) {
               <Button
                 variant="outline"
                 className="border-[#333366] text-[#333366] hover:bg-[#333366] hover:text-white"
-                onClick={() => onNavigate?.("creadores")}
+                onClick={() => router.push("/creadores")}
               >
                 Ver Programa de Creadores
               </Button>

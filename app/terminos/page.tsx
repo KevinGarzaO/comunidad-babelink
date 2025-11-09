@@ -3,18 +3,16 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { useRouter } from "next/navigation";
 
-interface TermsOfServiceProps {
-  onBack: () => void;
-}
-
-function TermsOfService({ onBack }: TermsOfServiceProps) {
+function TermsOfService() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
         <Button
           variant="ghost"
-          onClick={onBack}
+          onClick={router.back}
           className="mb-6 text-[#333366] hover:text-[#FFCC00]"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

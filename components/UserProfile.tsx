@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -45,28 +47,25 @@ import { communityPosts } from "../src/data/community";
 import { toast } from "sonner";
 import { LoginModal } from "./LoginModal";
 import { useAuth } from "../src/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface UserProfileProps {
-  userId: number;
-  onBack: () => void;
-  onPostClick: (postId: number) => void;
-  onNavigate?: (page: string) => void;
-  isCreator?: boolean;
+  userId: string;
+  onPostClick?: (postId: number) => void;
   onUserClick?: (userId: number, isCreator: boolean) => void;
   onCreatePost?: () => void;
 }
 
 export function UserProfile({
   userId,
-  onBack,
   onPostClick,
-  onNavigate,
-  isCreator = true,
   onUserClick,
   onCreatePost,
 }: UserProfileProps) {
+  const router = useRouter();
+  const isCreator = true;
   const { user: currentUser, login } = useAuth();
-  const isOwnProfile = currentUser?.id === userId;
+  const isOwnProfile = currentUser?.id === parseInt(userId);
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState(
     isCreator ? "posts" : "interactions"
@@ -347,7 +346,7 @@ export function UserProfile({
       {/* Header con botón de regreso */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={onBack} className="gap-2">
+          <Button variant="ghost" onClick={router.back} className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Volver
           </Button>
@@ -748,7 +747,7 @@ export function UserProfile({
                         <Card
                           key={post.id}
                           className="hover:shadow-lg transition-shadow cursor-pointer"
-                          onClick={() => onPostClick(post.id)}
+                          onClick={() => onPostClick?.(post.id)}
                         >
                           <CardContent className="p-6">
                             <div className="flex gap-4">
@@ -818,7 +817,7 @@ export function UserProfile({
                       <Card
                         key={post.id}
                         className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => onPostClick(post.id)}
+                        onClick={() => onPostClick?.(post.id)}
                       >
                         <CardContent className="p-6">
                           <div className="flex gap-4">
@@ -896,9 +895,7 @@ export function UserProfile({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() =>
-                              onUserClick?.(follower.id, follower.isCreator)
-                            }
+                            onClick={() => router.push(`/comunidad/${user.id}`)}
                           >
                             Ver perfil
                           </Button>
@@ -1134,7 +1131,7 @@ export function UserProfile({
                         </p>
                         <Button
                           className="w-full bg-[#333366] hover:bg-[#333366]/90 text-white"
-                          onClick={() => onNavigate?.("preregistro")}
+                          onClick={() => router.push("/preregistro")}
                         >
                           Únete al Programa
                         </Button>
@@ -1208,10 +1205,7 @@ export function UserProfile({
           <div className="flex flex-col gap-3 mt-4">
             <Button
               className="w-full bg-[#333366] hover:bg-[#333366]/90 text-white"
-              onClick={() => {
-                setShowVerifiedModal(false);
-                onNavigate?.("preregistro");
-              }}
+              onClick={() => router.push("/preregistro")}
             >
               Conocer el Programa de Creadores
             </Button>
@@ -1230,7 +1224,6 @@ export function UserProfile({
       <LoginModal
         open={showSubscriptionModal}
         onOpenChange={setShowSubscriptionModal}
-        onNavigate={onNavigate}
       />
 
       {/* Modal de Edición de Perfil */}

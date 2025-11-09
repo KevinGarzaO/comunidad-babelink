@@ -30,6 +30,7 @@ import { Post } from "../../src/data/posts";
 import { LoginModal } from "../../components/LoginModal";
 import { SocialMediaLinks } from "../../components/SocialMediaLinks";
 import { useAuth } from "../../src/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface CommunityPageProps {
   onNavigate?: (page: string) => void;
@@ -42,6 +43,7 @@ function CommunityPage({
   onUserClick,
   onCreatePost,
 }: CommunityPageProps = {}) {
+  const router = useRouter();
   const { user } = useAuth();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -347,7 +349,7 @@ function CommunityPage({
                           size="sm"
                           variant="outline"
                           className="mt-2 h-7 text-xs"
-                          onClick={() => onUserClick?.(user.id)}
+                          onClick={() => router.push(`/comunidad/${user.id}`)}
                         >
                           Ver perfil
                         </Button>
@@ -448,11 +450,7 @@ function CommunityPage({
       </div>
 
       {/* Login Modal */}
-      <LoginModal
-        open={isLoginOpen}
-        onOpenChange={setIsLoginOpen}
-        onNavigate={onNavigate}
-      />
+      <LoginModal open={isLoginOpen} onOpenChange={setIsLoginOpen} />
     </div>
   );
 }

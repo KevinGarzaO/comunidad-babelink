@@ -732,11 +732,7 @@ export function BlogPost({
       )}
 
       {/* Login Modal */}
-      <LoginModal
-        open={isLoginOpen}
-        onOpenChange={setIsLoginOpen}
-        onNavigate={onNavigate}
-      />
+      <LoginModal open={isLoginOpen} onOpenChange={setIsLoginOpen} />
     </div>
   );
 }
