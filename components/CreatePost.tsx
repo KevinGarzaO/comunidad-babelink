@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -29,11 +31,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../src/contexts/AuthContext";
-
-interface CreatePostProps {
-  onBack: () => void;
-  onPostCreated?: () => void;
-}
+import { useRouter } from "next/navigation";
 
 // Etiquetas disponibles para autocompletado
 const AVAILABLE_TAGS = [
@@ -81,7 +79,7 @@ const AVAILABLE_TAGS = [
   "Low-Code",
 ];
 
-export function CreatePost({ onBack, onPostCreated }: CreatePostProps) {
+function CreatePost() {
   const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -93,6 +91,7 @@ export function CreatePost({ onBack, onPostCreated }: CreatePostProps) {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
+  const router = useRouter();
 
   // Filtrar etiquetas según el input
   const filteredTags = AVAILABLE_TAGS.filter(
@@ -165,10 +164,8 @@ export function CreatePost({ onBack, onPostCreated }: CreatePostProps) {
       description: "Tu publicación ya está visible en la comunidad.",
     });
 
-    if (onPostCreated) {
-      onPostCreated();
-    }
-    onBack();
+    
+    //TODO -> Regresar
   };
 
   const handleSchedule = () => {
@@ -193,10 +190,8 @@ export function CreatePost({ onBack, onPostCreated }: CreatePostProps) {
     });
 
     setShowScheduleModal(false);
-    if (onPostCreated) {
-      onPostCreated();
-    }
-    onBack();
+    
+    //TODO -> Regresar
   };
 
   const handlePreview = () => {
@@ -278,7 +273,7 @@ export function CreatePost({ onBack, onPostCreated }: CreatePostProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={onBack}
+            onClick={router.back}
               className="hover:bg-gray-100"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -420,33 +415,33 @@ export function CreatePost({ onBack, onPostCreated }: CreatePostProps) {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="write" className="mt-4">
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="# Título de tu publicación
+                <TabsContent value="write" className="mt-4">
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={`# Título de tu publicación
 
-Escribe aquí el contenido de tu post usando Markdown...
+            Escribe aquí el contenido de tu post usando Markdown...
 
-## Ejemplos de formato:
+            ## Ejemplos de formato:
 
-- **Texto en negrita**
-- *Texto en cursiva*
-- `código inline`
-- [Enlaces](https://ejemplo.com)
+            - **Texto en negrita**
+            - *Texto en cursiva*
+            - \`código inline\`
+            - [Enlaces](https://ejemplo.com)
 
-### Puedes crear secciones
+            ### Puedes crear secciones
 
-* Lista con viñetas
-* Otro elemento
+            * Lista con viñetas
+            * Otro elemento
 
-**Tip:** Usa los encabezados # ## ### para organizar tu contenido"
-                  className="w-full min-h-[500px] p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333366] focus:border-transparent font-mono text-sm resize-y"
-                  style={{
-                    fontFamily:
-                      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                  }}
-                />
+            **Tip:** Usa los encabezados # ## ### para organizar tu contenido.`}
+                className="w-full min-h-[500px] p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333366] focus:border-transparent font-mono text-sm resize-y"
+                style={{
+                  fontFamily:
+                    "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                }}
+              />
                 <div className="flex justify-between items-center mt-2">
                   <p className="text-xs text-gray-500">
                     {content.length} caracteres
@@ -580,7 +575,7 @@ Escribe aquí el contenido de tu post usando Markdown...
                 <Card className="border-2 border-[#333366]">
                   <CardContent className="p-0">
                     {/* Header del post */}
-                    <div className="p-6 pb-4">
+                    <div className="p-6 pb-2">
                       <div className="flex items-start gap-3 mb-4">
                         <Avatar className="h-10 w-10">
                           <ImageWithFallback
@@ -597,13 +592,13 @@ Escribe aquí el contenido de tu post usando Markdown...
 
                       {/* Título */}
                       {title.trim() && (
-                        <h2 className="text-2xl mb-4">{title}</h2>
+                        <h2 className="text-2xl mb-2">{title}</h2>
                       )}
                     </div>
 
                     {/* Imagen de encabezado */}
                     {headerImage && (
-                      <div className="w-full mb-4">
+                      <div className="w-full mb-2">
                         <ImageWithFallback
                           src={headerImage}
                           alt="Header"
@@ -612,7 +607,7 @@ Escribe aquí el contenido de tu post usando Markdown...
                       </div>
                     )}
 
-                    <div className="px-6 pb-6">
+                    <div className="px-6 pb-2">
                       {/* Contenido */}
                       {content.trim() && (
                         <div
@@ -770,3 +765,5 @@ Escribe aquí el contenido de tu post usando Markdown...
     </div>
   );
 }
+
+export default CreatePost;

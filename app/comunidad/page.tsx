@@ -417,121 +417,142 @@ function PostCard({ post }: { post: CommunityPost }) {
 
   return (
     <Card
-      className="hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-      onClick={() => {
-        router.push(`/comunidad/${post.author.id}/${post.slug}`);
-      }}
-    >
-      <CardContent className="p-0">
-        <div className="flex gap-4 p-4">
-          {/* Author Avatar */}
-          <div
-            className="flex-linear-0 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => {
+  className="hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+  onClick={() => {
+    router.push(`/comunidad/${post.author.id}/${post.slug}`);
+  }}
+>
+  <CardContent className="p-0">
+    <div className="flex gap-4 p-4">
+      {/* Author Avatar */}
+      <div
+        className="flex-linear-0 cursor-pointer hover:opacity-80 transition-opacity"
+        onClick={(e) => {
+          e.stopPropagation();
+          router.push(`/comunidad/${post.author.id}`);
+        }}
+      >
+        <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200">
+          <ImageWithFallback
+            src={post.author.avatar}
+            alt={post.author.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+
+      {/* Post Content */}
+      <div className="flex-1 min-w-0">
+        {/* Author Info */}
+        <div className="flex items-center gap-2 mb-2">
+          <span
+            className="text-sm text-[#333366] hover:underline cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
               router.push(`/comunidad/${post.author.id}`);
             }}
           >
-            <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200">
-              <ImageWithFallback
-                src={post.author.avatar}
-                alt={post.author.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+            {post.author.name}
+          </span>
 
-          {/* Post Content */}
-          <div className="flex-1 min-w-0">
-            {/* Author Info */}
-            <div className="flex items-center gap-2 mb-2">
-              <span
-                className="text-sm text-[#333366] hover:underline cursor-pointer"
-                onClick={() => {
-                  router.push(`/comunidad/${post.author.id}`);
-                }}
-              >
-                {post.author.name}
-              </span>
-              {post.author.isVerified && (
-                <Crown
-                  className="h-4 w-4 text-[#FFCC00] fill-[#FFCC00]"
-                  aria-label="Creador verificado"
-                />
-              )}
-              <span className="text-xs text-gray-500">
-                • {post.publishedAt}
-              </span>
-            </div>
+          {post.author.isVerified && (
+            <Crown
+              className="h-4 w-4 text-[#FFCC00] fill-[#FFCC00]"
+              aria-label="Creador verificado"
+            />
+          )}
 
-            {/* Title and Excerpt */}
-            <h2 className="text-xl text-[#333366] mb-2 hover:text-[#5a5a8a]">
-              {post.title}
-            </h2>
-            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-              {post.excerpt}
-            </p>
-
-            {/* Cover Image */}
-            {post.coverImage && (
-              <div className="aspect-video rounded-lg overflow-hidden mb-3">
-                <ImageWithFallback
-                  src={post.coverImage}
-                  alt={post.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  #{tag}
-                </Badge>
-              ))}
-            </div>
-
-            {/* Post Meta */}
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <button
-                className={`flex items-center gap-1.5 transition-all hover:scale-110 ${
-                  isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"
-                }`}
-                onClick={handleLike}
-                title={isLiked ? "Te gusta" : "Me gusta"}
-              >
-                <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
-                <span className="text-xs">
-                  {isLiked ? "Te gusta" : "Me gusta"} ({likesCount})
-                </span>
-              </button>
-              <button
-                className="flex items-center gap-1 hover:text-[#333366] transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>{post.comments}</span>
-              </button>
-              <span className="text-xs">{post.readTime} min de lectura</span>
-              <button
-                className="ml-auto transition-all hover:scale-110"
-                onClick={handleSave}
-                title={isSaved ? "Guardado" : "Guardar"}
-              >
-                <Bookmark
-                  className="h-4 w-4"
-                  style={{
-                    fill: isSaved ? "#FFCC00" : "none",
-                    color: isSaved ? "#FFCC00" : "#4b5563",
-                    stroke: isSaved ? "#FFCC00" : "currentColor",
-                  }}
-                />
-              </button>
-            </div>
-          </div>
+          <span className="text-xs text-gray-500">
+            • {post.publishedAt}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Title */}
+        <h2 className="text-xl text-[#333366] mb-2 hover:text-[#5a5a8a]">
+          {post.title}
+        </h2>
+
+        {/* Excerpt */}
+        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+          {post.excerpt}
+        </p>
+
+        {/* Cover Image */}
+        {post.coverImage && (
+          <div className="aspect-video rounded-lg overflow-hidden mb-3">
+            <ImageWithFallback
+              src={post.coverImage}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {post.tags.map((tag) => (
+            <Badge key={tag} variant="secondary" className="text-xs">
+              #{tag}
+            </Badge>
+          ))}
+        </div>
+
+        {/* Post Meta */}
+        <div className="flex items-center gap-4 text-sm text-gray-600">
+          {/* Like */}
+          <button
+            className={`flex items-center gap-1.5 transition-all hover:scale-110 ${
+              isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLike(e);
+            }}
+            title={isLiked ? "Te gusta" : "Me gusta"}
+          >
+            <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+            <span className="text-xs">
+              {isLiked ? "Te gusta" : "Me gusta"} ({likesCount})
+            </span>
+          </button>
+
+          {/* Comments */}
+          <button
+            className="flex items-center gap-1 hover:text-[#333366] transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Aquí puedes abrir modal, ir a comentarios, etc
+            }}
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span>{post.comments}</span>
+          </button>
+
+          <span className="text-xs">{post.readTime} min de lectura</span>
+
+          {/* Save */}
+          <button
+            className="ml-auto transition-all hover:scale-110"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Aquí puedes abrir modal, ir a comentarios, etc
+            }}
+            title={isSaved ? "Guardado" : "Guardar"}
+          >
+            <Bookmark
+              className="h-4 w-4"
+              style={{
+                fill: isSaved ? "#FFCC00" : "none",
+                color: isSaved ? "#FFCC00" : "#4b5563",
+                stroke: isSaved ? "#FFCC00" : "currentColor",
+              }}
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </CardContent>
+</Card>
   );
 }
 

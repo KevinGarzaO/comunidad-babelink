@@ -50,7 +50,7 @@ import { useAuth } from "../src/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
 interface UserProfileProps {
-  userId: string;
+  userId?: string;
   onPostClick?: (postId: number) => void;
   onUserClick?: (userId: number, isCreator: boolean) => void;
   onCreatePost?: () => void;
@@ -65,7 +65,11 @@ export function UserProfile({
   const router = useRouter();
   const isCreator = true;
   const { user: currentUser, login } = useAuth();
-  const isOwnProfile = currentUser?.id === parseInt(userId);
+  let isOwnProfile: boolean = false;
+  debugger;
+  if(currentUser?.id === undefined){
+    isOwnProfile = true;
+  }
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState(
     isCreator ? "posts" : "interactions"
@@ -278,14 +282,14 @@ export function UserProfile({
   };
 
   const handleOpenEditModal = () => {
-    if (currentUser) {
+    if (isOwnProfile) {
       setEditForm({
-        name: currentUser.name,
-        bio: currentUser.bio || "",
+        name: currentUser?.name || "",
+        bio: currentUser?.bio || "",
         specialty: profileExtra.specialty,
         location: profileExtra.location,
         website: profileExtra.website,
-        avatar: currentUser.avatar,
+        avatar: currentUser?.avatar || "",
         coverImage: profileExtra.coverImage,
         social: profileExtra.social,
       });
@@ -583,7 +587,7 @@ export function UserProfile({
                       {isOwnProfile ? (
                         <>
                           <Button
-                            onClick={onCreatePost}
+                            onClick={() => router.push("/perfil/createPost")}
                             className="bg-[#333366] text-white hover:bg-[#333366]/90"
                           >
                             <PenSquare className="mr-2 h-4 w-4" />
