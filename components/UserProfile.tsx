@@ -1075,7 +1075,7 @@ export function UserProfileComponente({
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Donation Card - Solo para creadores */}
-            {isCreator && (
+            {!isOwnProfile && (
               <Card className="bg-linear-to-br from-[#FFCC00]/10 to-[#FFCC00]/5 border-[#FFCC00]/20">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-4">
@@ -1143,110 +1143,103 @@ export function UserProfileComponente({
             )}
 
             {/* About Card */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg mb-4 text-[#333366]">
-                  Sobre{" "}
-                  {displayedUser?.name
-                    ? displayedUser?.name.split(" ")[0]
-                    : "Usuario"}
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="text-gray-600">Miembro desde:</span>
-                    <p className="text-[#333366]">
-                      {displayedUser?.joinedDate
-                        ? new Date(displayedUser?.joinedDate)
-                            .toLocaleDateString("es-MX", {
-                              year: "numeric",
-                              month: "long",
-                            })
-                            .replace(/^\w/, (c) => c.toUpperCase())
-                        : "Desconocido"}
-                    </p>
-                  </div>
-                  <Separator />
-                  {isCreator ? (
-                    <>
-                      <div>
-                        <span className="text-gray-600">
-                          Total de artículos:
-                        </span>
-                        <p className="text-[#333366]">
-                          {displayedUser?.stats.posts} publicaciones
-                        </p>
-                      </div>
-                      <Separator />
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <span className="text-gray-600">Interacciones:</span>
-                        <p className="text-[#333366]">
-                          {interactedPosts.length} artículos
-                        </p>
-                      </div>
-                      <Separator />
-                    </>
-                  )}
-                  <div>
-                    <span className="text-gray-600">Comunidad:</span>
-                    <p className="text-[#333366]">
-                      {(displayedUser?.stats?.followers ?? 0) +
-                        (displayedUser?.stats?.following ?? 0)}{" "}
-                      conexiones
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Contribution Card - Solo para creadores */}
-            {isCreator && (
-              <Card className="bg-linear-to-br from-[#333366] to-[#5a5a8a] text-white">
+            {!isOwnProfile && (
+              <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-lg mb-3">Impacto en la Comunidad</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-200">
-                        Reacciones totales
-                      </span>
-                      <span className="text-xl">
-                        {userPosts.reduce(
-                          (acc, post) => acc + post.reactions,
-                          0
-                        )}
-                      </span>
+                  <h3 className="text-lg mb-4 text-[#333366]">
+                    Sobre{" "}
+                    {displayedUser?.name
+                      ? displayedUser?.name.split(" ")[0]
+                      : "Usuario"}
+                  </h3>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <span className="text-gray-600">Miembro desde:</span>
+                      <p className="text-[#333366]">
+                        {displayedUser?.joinedDate
+                          ? new Date(displayedUser?.joinedDate)
+                              .toLocaleDateString("es-MX", {
+                                year: "numeric",
+                                month: "long",
+                              })
+                              .replace(/^\w/, (c) => c.toUpperCase())
+                          : "Desconocido"}
+                      </p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-200">
-                        Comentarios recibidos
-                      </span>
-                      <span className="text-xl">
-                        {userPosts.reduce(
-                          (acc, post) => acc + post.comments,
-                          0
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-200">
-                        Alcance estimado
-                      </span>
-                      <span className="text-xl">
-                        {(
-                          (displayedUser?.stats?.followers ?? 0) *
-                          (userPosts?.length ?? 0)
-                        ).toLocaleString()}
-                      </span>
+                    <Separator />
+                    {isCreator ? (
+                      <>
+                        <div>
+                          <span className="text-gray-600">
+                            Total de artículos:
+                          </span>
+                          <p className="text-[#333366]">
+                            {displayedUser?.stats.posts} publicaciones
+                          </p>
+                        </div>
+                        <Separator />
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <span className="text-gray-600">Interacciones:</span>
+                          <p className="text-[#333366]">
+                            {interactedPosts.length} artículos
+                          </p>
+                        </div>
+                        <Separator />
+                      </>
+                    )}
+                    <div>
+                      <span className="text-gray-600">Comunidad:</span>
+                      <p className="text-[#333366]">
+                        {(displayedUser?.stats?.followers ?? 0) +
+                          (displayedUser?.stats?.following ?? 0)}{" "}
+                        conexiones
+                      </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             )}
+            {/* Contribution Card - Solo para creadores */}
+            <Card className="bg-linear-to-br from-[#333366] to-[#5a5a8a] text-white">
+              <CardContent className="p-6">
+                <h3 className="text-lg mb-3">Impacto en la Comunidad</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-200">
+                      Reacciones totales
+                    </span>
+                    <span className="text-xl">
+                      {userPosts.reduce((acc, post) => acc + post.reactions, 0)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-200">
+                      Comentarios recibidos
+                    </span>
+                    <span className="text-xl">
+                      {userPosts.reduce((acc, post) => acc + post.comments, 0)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-200">
+                      Alcance estimado
+                    </span>
+                    <span className="text-xl">
+                      {(
+                        (displayedUser?.stats?.followers ?? 0) *
+                        (userPosts?.length ?? 0)
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* CTA - Solo mostrar si NO está autenticado */}
-            {!currentUser && (
+            {!isOwnProfile && displayedUser?.isVerified && (
               <>
                 {isCreator ? (
                   <Card className="bg-linear-to-br from-[#FFCC00] via-[#FFCC00]/95 to-[#FFD633] border-0 text-[#333366]">
