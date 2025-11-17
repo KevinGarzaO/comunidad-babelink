@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -48,28 +48,95 @@ import { toast } from "sonner";
 import { LoginModal } from "./LoginModal";
 import { useAuth } from "../src/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  DocumentData,
+} from "firebase/firestore";
+import { db } from "../firebaseMessaging";
+import { UserProfile } from "../data/userData";
 
 interface UserProfileProps {
   userId?: string;
   onPostClick?: (postId: number) => void;
   onUserClick?: (userId: number, isCreator: boolean) => void;
-  onCreatePost?: () => void;
 }
 
-export function UserProfile({
+export function UserProfileComponente({
   userId,
   onPostClick,
   onUserClick,
-  onCreatePost,
 }: UserProfileProps) {
   const router = useRouter();
   const isCreator = true;
-  const { user: currentUser, login } = useAuth();
-  let isOwnProfile: boolean = false;
-  debugger;
-  if(currentUser?.id === undefined){
-    isOwnProfile = true;
-  }
+  const { user: currentUser } = useAuth();
+  const isOwnProfile = !userId || userId === currentUser?.id;
+  const [_user, setUser] = useState<UserProfile | null>(null);
+
+  const getUserByUsername = async (
+    username: string
+  ): Promise<UserProfile | null> => {
+    const q = query(
+      collection(db, "usuarios"),
+      where("username", "==", username)
+    );
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return null;
+
+    const docSnap = snapshot.docs[0];
+    const data = docSnap.data() as DocumentData;
+
+    // Convertimos los timestamps a Date o strings si es necesario
+    return {
+      id: docSnap.id,
+      name: data.name || "",
+      username: data.username || "",
+      email: data.email || "",
+      avatar: data.avatar || "",
+      coverImage: data.coverImage || null,
+      specialty: data.specialty || "",
+      bio: data.bio || "",
+      location: data.location || null,
+      website: data.website || null,
+      joinedDate: data.joinedDate || "",
+      stats: {
+        posts: data.stats?.posts || 0,
+        followers: data.stats?.followers || 0,
+        following: data.stats?.following || 0,
+      },
+      social: data.social || {},
+      badges: data.badges || [],
+      isVerified: data.isVerified || false,
+      createdOn: data.createdOn || null,
+      updatedOn: data.updatedOn || null,
+      lastAccess: data.lastAccess || null,
+    };
+  };
+
+  useEffect(() => {
+    // Solo ejecuta si hay userId
+    if (!userId) return;
+
+    const loadUser = async () => {
+      try {
+        const data = await getUserByUsername(userId);
+        if (data) {
+          setUser(data);
+          console.log("Usuario cargado:", data); // loguea los datos recibidos directamente
+        } else {
+          console.log("Usuario no encontrado");
+        }
+      } catch (error) {
+        console.error("Error cargando usuario:", error);
+      }
+    };
+
+    loadUser();
+  }, [userId]); // se ejecuta cuando userId cambia
+
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState(
     isCreator ? "posts" : "interactions"
@@ -78,23 +145,6 @@ export function UserProfile({
   const [showVerifiedModal, setShowVerifiedModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
-  // Estado para información extra del perfil (que no está en User de auth)
-  const [profileExtra, setProfileExtra] = useState({
-    location: "Tu ubicación",
-    website: "",
-    specialty: "",
-    coverImage:
-      "https://images.unsplash.com/photo-1614850716626-873413eb7c1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyYWRpZW50JTIwYmFubmVyfGVufDF8fHx8MTc2MjAxNzc0MHww&ixlib=rb-4.1.0&q=80&w=1080",
-    social: {
-      youtube: "",
-      tiktok: "",
-      instagram: "",
-      linkedin: "",
-      facebook: "",
-      spotify: "",
-    },
-  });
 
   // Estados para el formulario de edición
   const [editForm, setEditForm] = useState({
@@ -123,73 +173,50 @@ export function UserProfile({
           name: currentUser.name,
           username: `@${currentUser.username}`,
           avatar: currentUser.avatar,
-          coverImage: profileExtra.coverImage,
-          specialty: profileExtra.specialty || "",
+          coverImage: currentUser.coverImage,
+          specialty: currentUser.specialty,
           bio: currentUser.bio || "Miembro de la comunidad Babelink",
-          location: profileExtra.location,
-          website: profileExtra.website || null,
-          joinedDate: "Noviembre 2024",
+          location: currentUser.location,
+          website: currentUser.website || null,
+          joinedDate: currentUser.joinedDate || "Enero 2024",
           stats: {
             posts: 0,
             followers: 0,
             following: 0,
           },
-          social: profileExtra.social,
+          social: currentUser.social || {},
           badges: [],
           isVerified: currentUser.isVerified || false,
         }
-      : isCreator
-      ? {
-          id: userId,
-          name: "María González",
-          username: "@mariagonzalez",
-          avatar:
-            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3NjE5ODY4NzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-          coverImage:
-            "https://images.unsplash.com/photo-1614850716626-873413eb7c1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyYWRpZW50JTIwYmFubmVyfGVufDF8fHx8MTc2MjAxNzc0MHww&ixlib=rb-4.1.0&q=80&w=1080",
-          specialty: "IA y Creación de Contenido Digital",
-          bio: "Apasionada por compartir conocimiento y ayudar a otros creadores a crecer. 🚀",
-          location: "Madrid, España",
-          website: "mariagonzalez.com",
-          joinedDate: "Enero 2024",
+      : {
+          id: _user?.id,
+          name: _user?.name,
+          username: _user?.username,
+          avatar: _user?.avatar,
+          coverImage: _user?.coverImage,
+          specialty: _user?.specialty,
+          bio: _user?.bio,
+          location: _user?.location,
+          website: _user?.website,
+          joinedDate: _user?.joinedDate,
           stats: {
-            posts: 24,
-            followers: 1250,
-            following: 340,
+            posts: _user?.stats.posts,
+            followers: _user?.stats.followers,
+            following: _user?.stats.following,
           },
           social: {
-            youtube: "@mariagonzalez",
-            tiktok: "@mariagonzalez",
-            instagram: "mariagonzalez",
-            linkedin: "maria-gonzalez",
-            facebook: "maria.gonzalez",
-            spotify: "mariagonzalez",
+            youtube: _user?.social?.youtube,
+            tiktok: _user?.social?.tiktok,
+            instagram: _user?.social?.instagram,
+            linkedin: _user?.social?.linkedin,
+            facebook: _user?.social?.facebook,
+            spotify: _user?.social?.spotify,
           },
-          badges: ["Creadora Verificada", "Top Contributor", "IA Expert"],
-          isVerified: true, // Creador verificado del programa
-        }
-      : {
-          id: userId,
-          name: "Carlos Ruiz",
-          username: "@carlosruiz",
-          avatar:
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
-          coverImage:
-            "https://images.unsplash.com/photo-1557683316-973673baf926?w=1080",
-          specialty: "",
-          bio: "Desarrollador Full Stack apasionado por la tecnología y el aprendizaje continuo.",
-          location: "Barcelona, España",
-          website: null,
-          joinedDate: "Marzo 2024",
-          stats: {
-            posts: 0,
-            followers: 45,
-            following: 120,
-          },
-          social: {},
-          badges: [],
-          isVerified: false, // Usuario normal no verificado
+          badges: _user?.badges,
+          isVerified: _user?.isVerified,
         };
+
+  console.log("Renderizando perfil de usuario:", user);
 
   // Posts del usuario
   const userPosts = communityPosts.filter(
@@ -286,13 +313,21 @@ export function UserProfile({
       setEditForm({
         name: currentUser?.name || "",
         bio: currentUser?.bio || "",
-        specialty: profileExtra.specialty,
-        location: profileExtra.location,
-        website: profileExtra.website,
+        specialty: currentUser?.specialty || "",
+        location: currentUser?.location || "",
+        website: currentUser?.website || "",
         avatar: currentUser?.avatar || "",
-        coverImage: profileExtra.coverImage,
-        social: profileExtra.social,
+        coverImage: currentUser?.coverImage || "",
+        social: {
+          youtube: currentUser?.social?.youtube || "",
+          tiktok: currentUser?.social?.tiktok || "",
+          instagram: currentUser?.social?.instagram || "",
+          linkedin: currentUser?.social?.linkedin || "",
+          facebook: currentUser?.social?.facebook || "",
+          spotify: currentUser?.social?.spotify || "",
+        },
       });
+
       setShowEditModal(true);
     }
   };
@@ -300,21 +335,7 @@ export function UserProfile({
   const handleSaveProfile = () => {
     if (currentUser) {
       // Actualizar el usuario en el contexto de autenticación
-      login({
-        ...currentUser,
-        name: editForm.name,
-        bio: editForm.bio,
-        avatar: editForm.avatar,
-      });
-
-      // Actualizar información extra del perfil
-      setProfileExtra({
-        location: editForm.location,
-        website: editForm.website,
-        specialty: editForm.specialty,
-        coverImage: editForm.coverImage,
-        social: editForm.social,
-      });
+      //TODO: Implementar actualización en AuthContext si es necesario
 
       toast.success("¡Perfil actualizado exitosamente!", {
         description: "Tus cambios se han guardado correctamente.",
@@ -361,7 +382,7 @@ export function UserProfile({
       <div className="relative">
         <div className="h-48 md:h-64 lg:h-80 w-full overflow-hidden bg-linear-to-r from-[#333366] to-[#5a5a8a]">
           <ImageWithFallback
-            src={user.coverImage}
+            src={user.coverImage ?? undefined}
             alt="Portada"
             className="w-full h-full object-cover opacity-80"
           />
@@ -376,7 +397,10 @@ export function UserProfile({
                 <div className="relative">
                   <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-white shadow-xl">
                     <ImageWithFallback
-                      src={user.avatar}
+                      src={
+                        user.avatar ||
+                        "https://demofree.sirv.com/nope-not-here.jpg"
+                      }
                       alt={user.name}
                       className="w-full h-full object-cover rounded-full"
                     />
@@ -467,7 +491,17 @@ export function UserProfile({
                         )}
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          <span>Se unió en {user.joinedDate}</span>
+                          <span>
+                            Se unió en{" "}
+                            {user.joinedDate
+                              ? new Date(user.joinedDate)
+                                  .toLocaleDateString("es-MX", {
+                                    year: "numeric",
+                                    month: "long",
+                                  })
+                                  .replace(/^\w/, (c) => c.toUpperCase())
+                              : "Desconocido"}
+                          </span>
                         </div>
                       </div>
 
@@ -968,7 +1002,7 @@ export function UserProfile({
                   <div className="flex items-center gap-2 mb-4">
                     <DollarSign className="h-5 w-5 text-[#333366]" />
                     <h3 className="text-lg text-[#333366]">
-                      Apoya a {user.name.split(" ")[0]}
+                      Apoya a {user?.name ? user.name.split(" ")[0] : "Usuario"}
                     </h3>
                   </div>
                   <p className="text-sm text-gray-600 mb-4">
@@ -1033,12 +1067,21 @@ export function UserProfile({
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg mb-4 text-[#333366]">
-                  Sobre {user.name.split(" ")[0]}
+                  Sobre {user?.name ? user.name.split(" ")[0] : "Usuario"}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div>
                     <span className="text-gray-600">Miembro desde:</span>
-                    <p className="text-[#333366]">{user.joinedDate}</p>
+                    <p className="text-[#333366]">
+                      {user.joinedDate
+                        ? new Date(user.joinedDate)
+                            .toLocaleDateString("es-MX", {
+                              year: "numeric",
+                              month: "long",
+                            })
+                            .replace(/^\w/, (c) => c.toUpperCase())
+                        : "Desconocido"}
+                    </p>
                   </div>
                   <Separator />
                   {isCreator ? (
@@ -1067,7 +1110,9 @@ export function UserProfile({
                   <div>
                     <span className="text-gray-600">Comunidad:</span>
                     <p className="text-[#333366]">
-                      {user.stats.followers + user.stats.following} conexiones
+                      {(user?.stats?.followers ?? 0) +
+                        (user?.stats?.following ?? 0)}{" "}
+                      conexiones
                     </p>
                   </div>
                 </div>
@@ -1108,7 +1153,8 @@ export function UserProfile({
                       </span>
                       <span className="text-xl">
                         {(
-                          user.stats.followers * userPosts.length
+                          (user?.stats?.followers ?? 0) *
+                          (userPosts?.length ?? 0)
                         ).toLocaleString()}
                       </span>
                     </div>

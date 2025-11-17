@@ -17,10 +17,19 @@ export interface UserProfile {
     followers: number;
     following: number;
   };
-  social: Record<string, string>;
+  social?: SocialLinks;
   badges: string[];
   isVerified: boolean;
   createdOn?: Timestamp | FieldValue | null;
   updatedOn?: Timestamp | FieldValue | null;
   lastAccess?: Timestamp | FieldValue | null;
 }
+
+type SocialLinks = {
+  youtube?: string;
+  tiktok?: string;
+  instagram?: string;
+  linkedin?: string;
+  facebook?: string;
+  spotify?: string;
+};

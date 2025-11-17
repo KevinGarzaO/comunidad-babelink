@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { ErrorImage } from "../ErrorImage";
 import { CustomImage } from "../CustomImage";
 
-const FALLBACK_SRC = "/images/image-fallback.png";
+const FALLBACK_SRC = "https://demofree.sirv.com/nope-not-here.jpg";
 
 export function ImageWithFallback(
   props: React.ImgHTMLAttributes<HTMLImageElement>
@@ -37,6 +37,7 @@ export function ImageWithFallback(
       className={className}
       style={style}
       onError={handleError}
+      googleSize={1080}
     />
   );
 }

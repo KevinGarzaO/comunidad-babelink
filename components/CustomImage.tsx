@@ -6,6 +6,7 @@ interface CustomImageProps extends Omit<ImageProps, "src" | "alt"> {
   className?: string;
   style?: React.CSSProperties;
   onError?: React.ReactEventHandler<HTMLImageElement>;
+  googleSize?: number; // 👈 tamaño dinámico para avatares de Google
 }
 
 export function CustomImage({
@@ -14,13 +15,28 @@ export function CustomImage({
   className,
   style,
   onError,
+  googleSize = 128, // 👈 tamaño default si no se pasa
   ...rest
 }: CustomImageProps) {
-  // Convertimos Blob → object URL
   const finalSrc = (() => {
-    if (!src) return "/fallback.png"; // fallback si no hay src
-    if (typeof src === "string") return src; // si es string, va directo
-    return URL.createObjectURL(src); // si es Blob → URL temporal
+    if (!src) return "/fallback.png";
+
+    // Si es Blob → convertir
+    if (src instanceof Blob) {
+      return URL.createObjectURL(src);
+    }
+
+    // Si es string → detectar Google Avatar URL
+    if (typeof src === "string") {
+      if (src.includes("lh3.googleusercontent.com")) {
+        // reemplazar sXX-c por s${googleSize}-c
+        return src.replace(/=s\d+-c$/, `=s${googleSize}-c`);
+      }
+
+      return src;
+    }
+
+    return "https://demofree.sirv.com/nope-not-here.jpg";
   })();
 
   return (
