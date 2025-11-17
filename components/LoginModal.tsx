@@ -15,6 +15,15 @@ import { Separator } from "./ui/separator";
 import { Mail, Github, CheckCircle2, User } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../src/contexts/AuthContext";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  GithubAuthProvider,
+} from "firebase/auth";
+
+import { auth, db } from "../firebaseMessaging";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { UserProfile } from "../data/userData";
 
 interface LoginModalProps {
   open: boolean;
@@ -30,6 +39,33 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [, setRegistro] = useState(false);
+  const [, setUser] = useState<UserProfile>({
+    id: "",
+    name: "",
+    username: "",
+    email: "",
+
+    avatar: "",
+    coverImage: null,
+
+    specialty: "",
+    bio: "",
+    location: null,
+    website: null,
+
+    joinedDate: new Date().toISOString(),
+
+    stats: { posts: 0, followers: 0, following: 0 },
+
+    social: {},
+    badges: [],
+    isVerified: false,
+
+    createdOn: null,
+    updatedOn: null,
+    lastAccess: null,
+  });
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,41 +129,6 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
       }, 2000);
     }, 1000);
   };
-
-  const handleSocialLogin = (provider: string) => {
-    setIsLoading(true);
-    // Simular autenticación social
-    setTimeout(() => {
-      const userData = {
-        id: Math.floor(Math.random() * 1000),
-        name: `Usuario de ${provider}`,
-        email: `usuario@${provider.toLowerCase()}.com`,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${provider}`,
-        username: provider.toLowerCase() + "_user",
-        bio: `Conectado vía ${provider}`,
-        isVerified: false, // Usuarios normales no son verificados
-      };
-
-      login(userData);
-      setIsLoading(false);
-      setIsSuccess(true);
-
-      toast.success("¡Inicio de sesión exitoso!", {
-        description: `Conectado con ${provider}`,
-      });
-
-      setTimeout(() => {
-        setIsSuccess(false);
-        setEmail("");
-        setPassword("");
-        setName("");
-        setConfirmPassword("");
-        setMode("login");
-        onOpenChange(false);
-      }, 2000);
-    }, 1000);
-  };
-
   const handleClose = () => {
     if (!isLoading) {
       setEmail("");
@@ -139,13 +140,187 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
       onOpenChange(false);
     }
   };
-
   const toggleMode = () => {
     setMode(mode === "login" ? "register" : "login");
     setEmail("");
     setPassword("");
     setName("");
     setConfirmPassword("");
+  };
+  const handleLoginWithGoogle = async () => {
+    setIsLoading(true);
+    const provider = new GoogleAuthProvider();
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userRef = doc(db, "usuarios", user.uid);
+      const existingUser = await getDoc(userRef);
+
+      if (!existingUser.exists()) {
+        const newUserData: UserProfile = {
+          id: user.uid,
+          name: user.displayName || "Usuario de Babelink",
+          username: user.email
+            ? user.email.split("@")[0]
+            : `user${Math.floor(Math.random() * 1000)}`,
+          email: user.email || "",
+
+          avatar:
+            user.photoURL ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
+
+          coverImage: null,
+          specialty: "",
+          bio: "",
+          location: null,
+          website: null,
+
+          joinedDate: new Date().toISOString(),
+
+          stats: { posts: 0, followers: 0, following: 0 },
+          social: {},
+          badges: [],
+          isVerified: false,
+
+          createdOn: serverTimestamp(),
+          updatedOn: serverTimestamp(),
+          lastAccess: serverTimestamp(),
+        };
+
+        await setDoc(userRef, newUserData);
+        setUser(newUserData);
+      } else {
+        const existingData = existingUser.data() as UserProfile;
+
+        const updateData = {
+          name: user.displayName || existingData.name,
+          avatar: user.photoURL || existingData.avatar,
+          email: user.email || existingData.email,
+
+          updatedOn: serverTimestamp(),
+          lastAccess: serverTimestamp(),
+        };
+
+        await setDoc(userRef, updateData, { merge: true });
+
+        setUser({ ...existingData, ...updateData });
+      }
+
+      setRegistro(true);
+      onOpenChange(false);
+      setIsLoading(false);
+      setIsSuccess(true);
+
+      toast.success("¡Inicio de sesión exitoso!", {
+        description: `Bienvenido a Babelink ${user.displayName}`,
+      });
+
+      setTimeout(() => {
+        setIsSuccess(false);
+        setEmail("");
+        setPassword("");
+        setName("");
+        setConfirmPassword("");
+        setMode("login");
+        onOpenChange(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error durante login:", error);
+      setIsLoading(false);
+      toast.error("Hubo un problema con el inicio de sesión.");
+    }
+  };
+
+  const handleLoginWithGithub = async () => {
+    setIsLoading(true);
+    const provider = new GithubAuthProvider();
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userRef = doc(db, "usuarios", user.uid);
+      const existingUser = await getDoc(userRef);
+
+      if (!existingUser.exists()) {
+        // Usuario NUEVO
+        const newUserData: UserProfile = {
+          id: user.uid,
+          name: user.displayName || "Usuario de Babelink",
+          username: user.email
+            ? user.email.split("@")[0]
+            : `user${Math.floor(Math.random() * 1000)}`,
+          email: user.email || "",
+
+          avatar:
+            user.photoURL ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
+
+          coverImage: null,
+          specialty: "",
+          bio: "",
+          location: null,
+          website: null,
+
+          joinedDate: new Date().toISOString(),
+
+          stats: { posts: 0, followers: 0, following: 0 },
+          social: {},
+          badges: [],
+          isVerified: false,
+
+          createdOn: serverTimestamp(),
+          updatedOn: serverTimestamp(),
+          lastAccess: serverTimestamp(),
+        };
+
+        await setDoc(userRef, newUserData);
+
+        setUser(newUserData);
+      } else {
+        // Usuario YA EXISTE → actualizar solo campos dinámicos
+        const existingData = existingUser.data() as UserProfile;
+
+        const updateData = {
+          name: user.displayName || existingData.name,
+          avatar: user.photoURL || existingData.avatar,
+          email: user.email || existingData.email,
+
+          updatedOn: serverTimestamp(),
+          lastAccess: serverTimestamp(),
+        };
+
+        await setDoc(userRef, updateData, { merge: true });
+
+        setUser({ ...existingData, ...updateData });
+      }
+
+      // UI / estados
+      setRegistro(true);
+      onOpenChange(false);
+      setIsLoading(false);
+      setIsSuccess(true);
+
+      toast.success("¡Inicio de sesión exitoso!", {
+        description: `Bienvenido a Babelink ${user.displayName}`,
+      });
+
+      setTimeout(() => {
+        setIsSuccess(false);
+        setEmail("");
+        setPassword("");
+        setName("");
+        setConfirmPassword("");
+        setMode("login");
+        onOpenChange(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error durante login:", error);
+      setIsLoading(false);
+      toast.error("Hubo un problema con el inicio de sesión.");
+    }
   };
 
   return (
@@ -178,7 +353,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                 <Button
                   variant="outline"
                   className="w-full h-12 border-2 hover:border-[#FFCC00] hover:bg-[#FFCC00]/5 transition-all"
-                  onClick={() => handleSocialLogin("Gmail")}
+                  onClick={() => handleLoginWithGoogle()}
                 >
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                     <path
@@ -204,7 +379,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                 <Button
                   variant="outline"
                   className="w-full h-12 border-2 hover:border-[#FFCC00] hover:bg-[#FFCC00]/5 transition-all"
-                  onClick={() => handleSocialLogin("GitHub")}
+                  onClick={() => handleLoginWithGithub()}
                 >
                   <Github className="w-5 h-5 mr-3" />
                   Continuar con GitHub

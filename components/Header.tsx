@@ -24,20 +24,29 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { Menu, ChevronDown, LogOut, UserCircle } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebaseMessaging";
 
 export function Header() {
   const router = useRouter();
   const pathname = usePathname(); // 👈 Saber en qué página estás
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    toast.success("Sesión cerrada", {
-      description: "Has cerrado sesión exitosamente",
-    });
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("babelink_user");
+
+      toast.success("Sesión cerrada", {
+        description: "Has cerrado sesión exitosamente",
+      });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      toast.error("Hubo un problema al cerrar la sesión.");
+    }
   };
 
   const mainNavLinks = [

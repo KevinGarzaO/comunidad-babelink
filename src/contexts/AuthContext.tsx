@@ -1,40 +1,79 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  username: string;
-  bio?: string;
-  isVerified?: boolean; // Creadores verificados del programa
-}
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { UserProfile } from "../../data/userData";
+import { auth, db } from "../../firebaseMessaging";
 
 interface AuthContextType {
-  user: User | null;
-  login: (user: User) => void;
-  logout: () => void;
+  user: UserProfile | null;
   isAuthenticated: boolean;
+  loading: boolean;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (userData: User) => {
-    setUser(userData);
-  };
+  // 🔥 Detecta login/logout automáticamente
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
 
-  const logout = () => {
+      const userRef = doc(db, "usuarios", firebaseUser.uid);
+      const snap = await getDoc(userRef);
+
+      if (snap.exists()) {
+        const data = snap.data() as UserProfile;
+
+        // 🔥 ACTUALIZAR lastAccess cada vez que el usuario abre la app
+        await updateDoc(userRef, {
+          lastAccess: serverTimestamp(),
+        });
+
+        setUser({
+          ...data,
+          lastAccess: data.lastAccess ?? null, // opcional: reflejo inmediato en UI
+        });
+      } else {
+        setUser(null);
+      }
+
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // 🔥 Logout real con Firebase
+  const logout = async () => {
+    await signOut(auth);
     setUser(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, isAuthenticated: !!user }}
+      value={{
+        user,
+        isAuthenticated: !!user,
+        loading,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -43,8 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }
