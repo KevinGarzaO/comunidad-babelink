@@ -164,8 +164,8 @@ function CreatePost() {
       description: "Tu publicación ya está visible en la comunidad.",
     });
 
-    
     //TODO -> Regresar
+    router.back();
   };
 
   const handleSchedule = () => {
@@ -190,8 +190,8 @@ function CreatePost() {
     });
 
     setShowScheduleModal(false);
-    
-    //TODO -> Regresar
+
+    router.back();
   };
 
   const handlePreview = () => {
@@ -273,7 +273,7 @@ function CreatePost() {
             <Button
               variant="ghost"
               size="sm"
-            onClick={router.back}
+              onClick={router.back}
               className="hover:bg-gray-100"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -320,17 +320,28 @@ function CreatePost() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Autor */}
-          <div className="flex items-center gap-3 p-4 bg-[#E2E3F7] rounded-lg">
-            <Avatar className="h-12 w-12">
+          <div className="flex items-center gap-4 p-4 bg-[#E2E3F7] rounded-xl shadow-sm max-w-sm">
+            {/* Avatar */}
+            <div className="shrink-0 w-12 h-12 relative rounded-full overflow-hidden bg-gray-200">
               <ImageWithFallback
-                src={user?.avatar || ""}
-                alt={user?.name || ""}
-                className="object-cover"
+                src={
+                  user?.avatar || "https://demofree.sirv.com/nope-not-here.jpg"
+                }
+                alt={user?.name || "Usuario"}
+                width={48}
+                height={48}
+                className="object-cover w-full h-full"
               />
-            </Avatar>
-            <div>
-              <p className="font-medium">{user?.name}</p>
-              <p className="text-sm text-gray-600">@{user?.username}</p>
+            </div>
+
+            {/* Información del usuario */}
+            <div className="flex flex-col justify-center">
+              <p className="font-semibold text-[#333366] truncate">
+                {user?.name || "Usuario"}
+              </p>
+              <p className="text-sm text-gray-600 truncate">
+                @{user?.username || "usuario"}
+              </p>
             </div>
           </div>
 
@@ -415,11 +426,11 @@ function CreatePost() {
                 </TabsTrigger>
               </TabsList>
 
-                <TabsContent value="write" className="mt-4">
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={`# Título de tu publicación
+              <TabsContent value="write" className="mt-4">
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder={`# Título de tu publicación
 
             Escribe aquí el contenido de tu post usando Markdown...
 
@@ -436,12 +447,12 @@ function CreatePost() {
             * Otro elemento
 
             **Tip:** Usa los encabezados # ## ### para organizar tu contenido.`}
-                className="w-full min-h-[500px] p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333366] focus:border-transparent font-mono text-sm resize-y"
-                style={{
-                  fontFamily:
-                    "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                }}
-              />
+                  className="w-full min-h-[500px] p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333366] focus:border-transparent font-mono text-sm resize-y"
+                  style={{
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  }}
+                />
                 <div className="flex justify-between items-center mt-2">
                   <p className="text-xs text-gray-500">
                     {content.length} caracteres
@@ -579,7 +590,10 @@ function CreatePost() {
                       <div className="flex items-start gap-3 mb-4">
                         <Avatar className="h-10 w-10">
                           <ImageWithFallback
-                            src={user?.avatar || ""}
+                            src={
+                              user?.avatar ||
+                              "https://demofree.sirv.com/nope-not-here.jpg"
+                            }
                             alt={user?.name || ""}
                             className="object-cover"
                           />

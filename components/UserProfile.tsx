@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -54,6 +54,10 @@ import {
   where,
   getDocs,
   DocumentData,
+  setDoc,
+  doc,
+  serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseMessaging";
 import { UserProfile } from "../data/userData";
@@ -63,6 +67,7 @@ interface UserProfileProps {
   onPostClick?: (postId: number) => void;
   onUserClick?: (userId: number, isCreator: boolean) => void;
 }
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export function UserProfileComponente({
   userId,
@@ -149,6 +154,7 @@ export function UserProfileComponente({
   // Estados para el formulario de edición
   const [editForm, setEditForm] = useState({
     name: "",
+    username: "",
     bio: "",
     specialty: "",
     location: "",
@@ -165,62 +171,55 @@ export function UserProfileComponente({
     },
   });
 
-  // Datos mock del usuario (en producción vendría de una API)
-  const user =
-    isOwnProfile && currentUser
-      ? {
-          id: currentUser.id,
-          name: currentUser.name,
-          username: `@${currentUser.username}`,
-          avatar: currentUser.avatar,
-          coverImage: currentUser.coverImage,
-          specialty: currentUser.specialty,
-          bio: currentUser.bio || "Miembro de la comunidad Babelink",
-          location: currentUser.location,
-          website: currentUser.website || null,
-          joinedDate: currentUser.joinedDate || "Enero 2024",
-          stats: {
-            posts: 0,
-            followers: 0,
-            following: 0,
-          },
-          social: currentUser.social || {},
-          badges: [],
-          isVerified: currentUser.isVerified || false,
-        }
-      : {
-          id: _user?.id,
-          name: _user?.name,
-          username: _user?.username,
-          avatar: _user?.avatar,
-          coverImage: _user?.coverImage,
-          specialty: _user?.specialty,
-          bio: _user?.bio,
-          location: _user?.location,
-          website: _user?.website,
-          joinedDate: _user?.joinedDate,
-          stats: {
-            posts: _user?.stats.posts,
-            followers: _user?.stats.followers,
-            following: _user?.stats.following,
-          },
-          social: {
-            youtube: _user?.social?.youtube,
-            tiktok: _user?.social?.tiktok,
-            instagram: _user?.social?.instagram,
-            linkedin: _user?.social?.linkedin,
-            facebook: _user?.social?.facebook,
-            spotify: _user?.social?.spotify,
-          },
-          badges: _user?.badges,
-          isVerified: _user?.isVerified,
-        };
+  useEffect(() => {
+    if (isOwnProfile && currentUser) {
+      setUser({
+        ...currentUser,
+        avatar: currentUser.avatar || "",
+        coverImage: currentUser.coverImage || "",
+        location: currentUser.location || "",
+        website: currentUser.website || "",
+        bio: currentUser.bio || "Miembro de la comunidad Babelink",
+        social: {
+          youtube: currentUser.social?.youtube || "",
+          tiktok: currentUser.social?.tiktok || "",
+          instagram: currentUser.social?.instagram || "",
+          linkedin: currentUser.social?.linkedin || "",
+          facebook: currentUser.social?.facebook || "",
+          spotify: currentUser.social?.spotify || "",
+        },
+        stats: currentUser.stats || { posts: 0, followers: 0, following: 0 },
+        badges: currentUser.badges || [],
+      });
+    }
+  }, [currentUser, isOwnProfile]);
 
-  console.log("Renderizando perfil de usuario:", user);
+  // Inicializar user cuando carga currentUser o _user
+  const displayedUser = useMemo<UserProfile | null>(() => {
+    if (!_user) return null; // si no hay usuario cargado
+    return {
+      ..._user,
+      avatar: _user.avatar || "", // aseguramos que no sea null
+      coverImage: _user.coverImage || "",
+      location: _user.location || "",
+      website: _user.website || "",
+      bio: _user.bio || "Miembro de la comunidad Babelink",
+      social: {
+        youtube: _user.social?.youtube || "",
+        tiktok: _user.social?.tiktok || "",
+        instagram: _user.social?.instagram || "",
+        linkedin: _user.social?.linkedin || "",
+        facebook: _user.social?.facebook || "",
+        spotify: _user.social?.spotify || "",
+      },
+      stats: _user.stats || { posts: 0, followers: 0, following: 0 },
+      badges: _user.badges || [],
+    };
+  }, [_user]);
 
   // Posts del usuario
   const userPosts = communityPosts.filter(
-    (post) => post.author.name === user.name
+    (post) => post.author.name === displayedUser?.name
   );
 
   // Mock data de artículos con los que ha interactuado (para usuarios no creadores)
@@ -296,7 +295,7 @@ export function UserProfileComponente({
   const handleDonate = () => {
     if (donationAmount > 0) {
       toast.success(
-        `¡Gracias por tu donación de $${donationAmount}! Este apoyo ayuda a ${user.name} a seguir creando contenido.`
+        `¡Gracias por tu donación de $${donationAmount}! Este apoyo ayuda a ${displayedUser?.name} a seguir creando contenido.`
       );
       setDonationAmount(5);
     }
@@ -311,20 +310,21 @@ export function UserProfileComponente({
   const handleOpenEditModal = () => {
     if (isOwnProfile) {
       setEditForm({
-        name: currentUser?.name || "",
-        bio: currentUser?.bio || "",
-        specialty: currentUser?.specialty || "",
-        location: currentUser?.location || "",
-        website: currentUser?.website || "",
-        avatar: currentUser?.avatar || "",
-        coverImage: currentUser?.coverImage || "",
+        name: _user?.name || "",
+        username: _user?.username || "",
+        bio: _user?.bio || "",
+        specialty: _user?.specialty || "",
+        location: _user?.location || "",
+        website: _user?.website || "",
+        avatar: _user?.avatar || "",
+        coverImage: _user?.coverImage || "",
         social: {
-          youtube: currentUser?.social?.youtube || "",
-          tiktok: currentUser?.social?.tiktok || "",
-          instagram: currentUser?.social?.instagram || "",
-          linkedin: currentUser?.social?.linkedin || "",
-          facebook: currentUser?.social?.facebook || "",
-          spotify: currentUser?.social?.spotify || "",
+          youtube: _user?.social?.youtube || "",
+          tiktok: _user?.social?.tiktok || "",
+          instagram: _user?.social?.instagram || "",
+          linkedin: _user?.social?.linkedin || "",
+          facebook: _user?.social?.facebook || "",
+          spotify: _user?.social?.spotify || "",
         },
       });
 
@@ -332,35 +332,104 @@ export function UserProfileComponente({
     }
   };
 
-  const handleSaveProfile = () => {
-    if (currentUser) {
-      // Actualizar el usuario en el contexto de autenticación
-      //TODO: Implementar actualización en AuthContext si es necesario
+  const handleSaveProfile = async () => {
+    if (!currentUser?.id) return;
 
-      toast.success("¡Perfil actualizado exitosamente!", {
-        description: "Tus cambios se han guardado correctamente.",
+    const updateData = {
+      name: editForm.name,
+      username: editForm.username,
+      bio: editForm.bio,
+      specialty: editForm.specialty,
+      location: editForm.location || "",
+      website: editForm.website || "",
+      avatar: editForm.avatar || "",
+      coverImage: editForm.coverImage || "",
+      social: {
+        youtube: editForm.social.youtube || "",
+        tiktok: editForm.social.tiktok || "",
+        instagram: editForm.social.instagram || "",
+        linkedin: editForm.social.linkedin || "",
+        facebook: editForm.social.facebook || "",
+        spotify: editForm.social.spotify || "",
+      },
+      updatedOn: serverTimestamp(),
+    };
+
+    try {
+      await setDoc(doc(db, "usuarios", currentUser.id), updateData, {
+        merge: true,
       });
+
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              ...updateData,
+            }
+          : null
+      );
+
+      toast.success("Perfil actualizado correctamente");
+    } catch (error) {
+      console.error("Error actualizando perfil:", error);
+      toast.error("No se pudo actualizar el perfil");
+    } finally {
       setShowEditModal(false);
     }
   };
 
-  const handleImageUpload = (type: "avatar" | "cover") => {
+  const handleImageUpload = async (type: "avatar" | "cover") => {
+    if (!currentUser?.id) return;
+
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const imageUrl = reader.result as string;
-          if (type === "avatar") {
-            setEditForm((prev) => ({ ...prev, avatar: imageUrl }));
-          } else {
-            setEditForm((prev) => ({ ...prev, coverImage: imageUrl }));
-          }
-        };
-        reader.readAsDataURL(file);
+      if (!file) return;
+
+      try {
+        // Crear referencia en Firebase Storage
+        const storage = getStorage();
+        const storageRef = ref(
+          storage,
+          `users/${currentUser.id}/${type}-${Date.now()}-${file.name}`
+        );
+
+        // Subir archivo
+        await uploadBytes(storageRef, file);
+
+        // Obtener URL pública de la imagen
+        const downloadURL = await getDownloadURL(storageRef);
+
+        // Actualizar editForm local
+        setEditForm((prev) =>
+          type === "avatar"
+            ? { ...prev, avatar: downloadURL }
+            : { ...prev, coverImage: downloadURL }
+        );
+
+        // Actualizar Firestore directamente si quieres reflejarlo de inmediato
+        const userRef = doc(db, "usuarios", currentUser.id);
+        await updateDoc(userRef, {
+          [type]: downloadURL,
+          updatedOn: serverTimestamp(),
+        });
+
+        // Actualizar estado local para refrescar UI
+        setUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                [type]: downloadURL,
+              }
+            : prev
+        );
+
+        toast.success("Imagen actualizada correctamente");
+      } catch (error) {
+        console.error(error);
+        toast.error("Error al subir la imagen");
       }
     };
     input.click();
@@ -382,7 +451,7 @@ export function UserProfileComponente({
       <div className="relative">
         <div className="h-48 md:h-64 lg:h-80 w-full overflow-hidden bg-linear-to-r from-[#333366] to-[#5a5a8a]">
           <ImageWithFallback
-            src={user.coverImage ?? undefined}
+            src={displayedUser?.coverImage ?? undefined}
             alt="Portada"
             className="w-full h-full object-cover opacity-80"
           />
@@ -398,10 +467,10 @@ export function UserProfileComponente({
                   <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-white shadow-xl">
                     <ImageWithFallback
                       src={
-                        user.avatar ||
+                        displayedUser?.avatar ||
                         "https://demofree.sirv.com/nope-not-here.jpg"
                       }
-                      alt={user.name}
+                      alt={displayedUser?.name}
                       className="w-full h-full object-cover rounded-full"
                     />
                   </Avatar>
@@ -412,8 +481,10 @@ export function UserProfileComponente({
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h1 className="text-2xl md:text-3xl">{user.name}</h1>
-                        {user.isVerified && (
+                        <h1 className="text-2xl md:text-3xl">
+                          {displayedUser?.name}
+                        </h1>
+                        {displayedUser?.isVerified && (
                           <button
                             onClick={() => setShowVerifiedModal(true)}
                             className="hover:scale-110 transition-transform cursor-pointer"
@@ -423,78 +494,84 @@ export function UserProfileComponente({
                           </button>
                         )}
                       </div>
-                      <p className="text-gray-500 mb-3">{user.username}</p>
+                      <p className="text-gray-500 mb-3">
+                        @{displayedUser?.username}
+                      </p>
 
                       {/* Badges - Solo para creadores */}
-                      {isCreator && user.badges && user.badges.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {user.badges.map((badge, index) => (
-                            <Badge
-                              key={index}
-                              variant="secondary"
-                              className={`bg-[#E2E3F7] text-[#333366] flex items-center gap-1.5 ${
-                                badge === "Creadora Verificada"
-                                  ? "cursor-pointer hover:bg-[#d4d5e9] transition-colors"
-                                  : ""
-                              }`}
-                              onClick={() =>
-                                badge === "Creadora Verificada" &&
-                                setShowVerifiedModal(true)
-                              }
-                            >
-                              {badge === "Creadora Verificada" && (
-                                <Crown className="h-3.5 w-3.5 text-[#FFCC00] fill-[#FFCC00]" />
-                              )}
-                              {badge === "Top Contributor" && (
-                                <Award className="h-3.5 w-3.5 text-[#333366]" />
-                              )}
-                              {badge === "IA Expert" && (
-                                <Sparkles className="h-3.5 w-3.5 text-[#333366]" />
-                              )}
-                              {badge}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+                      {isCreator &&
+                        displayedUser?.badges &&
+                        displayedUser?.badges.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {displayedUser?.badges.map((badge, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className={`bg-[#E2E3F7] text-[#333366] flex items-center gap-1.5 ${
+                                  badge === "Creadora Verificada"
+                                    ? "cursor-pointer hover:bg-[#d4d5e9] transition-colors"
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  badge === "Creadora Verificada" &&
+                                  setShowVerifiedModal(true)
+                                }
+                              >
+                                {badge === "Creadora Verificada" && (
+                                  <Crown className="h-3.5 w-3.5 text-[#FFCC00] fill-[#FFCC00]" />
+                                )}
+                                {badge === "Top Contributor" && (
+                                  <Award className="h-3.5 w-3.5 text-[#333366]" />
+                                )}
+                                {badge === "IA Expert" && (
+                                  <Sparkles className="h-3.5 w-3.5 text-[#333366]" />
+                                )}
+                                {badge}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
 
                       {/* Especialidad */}
-                      {user.specialty && (
+                      {displayedUser?.specialty && (
                         <div className="mb-3">
                           <p className="text-[#333366] flex items-center gap-2">
                             <Sparkles className="h-4 w-4 text-[#FFCC00]" />
                             <span className="text-sm">Especialista en:</span>
-                            <span>{user.specialty}</span>
+                            <span>{displayedUser?.specialty}</span>
                           </p>
                         </div>
                       )}
 
-                      <p className="text-gray-700 mb-4 max-w-2xl">{user.bio}</p>
+                      <p className="text-gray-700 mb-4 max-w-2xl">
+                        {displayedUser?.bio}
+                      </p>
 
                       {/* Meta Info */}
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                        {user.location && (
+                        {displayedUser?.location && (
                           <div className="flex items-center gap-1">
                             <MapPin className="h-4 w-4" />
-                            <span>{user.location}</span>
+                            <span>{displayedUser?.location}</span>
                           </div>
                         )}
-                        {user.website && (
+                        {displayedUser?.website && (
                           <a
-                            href={`https://${user.website}`}
+                            href={`https://${displayedUser?.website}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-1 text-[#333366] hover:underline"
                           >
                             <Link2 className="h-4 w-4" />
-                            <span>{user.website}</span>
+                            <span>{displayedUser?.website}</span>
                           </a>
                         )}
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
                           <span>
                             Se unió en{" "}
-                            {user.joinedDate
-                              ? new Date(user.joinedDate)
+                            {displayedUser?.joinedDate
+                              ? new Date(displayedUser?.joinedDate)
                                   .toLocaleDateString("es-MX", {
                                     year: "numeric",
                                     month: "long",
@@ -507,16 +584,16 @@ export function UserProfileComponente({
 
                       {/* Social Links - Solo para creadores */}
                       {isCreator &&
-                        user.social &&
-                        Object.keys(user.social).length > 0 && (
+                        displayedUser?.social &&
+                        Object.keys(displayedUser?.social).length > 0 && (
                           <div className="mt-6 pt-4 border-t border-gray-200">
                             <p className="text-sm text-gray-600 mb-3">
                               Sigue su demás contenido en:
                             </p>
                             <div className="flex flex-wrap gap-4">
-                              {user.social.youtube && (
+                              {displayedUser?.social.youtube && (
                                 <a
-                                  href={`https://youtube.com/${user.social.youtube}`}
+                                  href={`https://youtube.com/${displayedUser?.social.youtube}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-2 text-gray-600 hover:text-[#FF0000] transition-colors group"
@@ -528,9 +605,9 @@ export function UserProfileComponente({
                                   </span>
                                 </a>
                               )}
-                              {user.social.tiktok && (
+                              {displayedUser?.social.tiktok && (
                                 <a
-                                  href={`https://tiktok.com/${user.social.tiktok}`}
+                                  href={`https://tiktok.com/${displayedUser?.social.tiktok}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors group"
@@ -548,9 +625,9 @@ export function UserProfileComponente({
                                   </span>
                                 </a>
                               )}
-                              {user.social.instagram && (
+                              {displayedUser?.social.instagram && (
                                 <a
-                                  href={`https://instagram.com/${user.social.instagram}`}
+                                  href={`https://instagram.com/${displayedUser?.social.instagram}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-2 text-gray-600 hover:text-[#E4405F] transition-colors group"
@@ -562,9 +639,9 @@ export function UserProfileComponente({
                                   </span>
                                 </a>
                               )}
-                              {user.social.linkedin && (
+                              {displayedUser?.social.linkedin && (
                                 <a
-                                  href={`https://linkedin.com/in/${user.social.linkedin}`}
+                                  href={`https://linkedin.com/in/${displayedUser?.social.linkedin}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-2 text-gray-600 hover:text-[#0A66C2] transition-colors group"
@@ -576,9 +653,9 @@ export function UserProfileComponente({
                                   </span>
                                 </a>
                               )}
-                              {user.social.facebook && (
+                              {displayedUser?.social.facebook && (
                                 <a
-                                  href={`https://facebook.com/${user.social.facebook}`}
+                                  href={`https://facebook.com/${displayedUser?.social.facebook}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-2 text-gray-600 hover:text-[#1877F2] transition-colors group"
@@ -590,9 +667,9 @@ export function UserProfileComponente({
                                   </span>
                                 </a>
                               )}
-                              {user.social.spotify && (
+                              {displayedUser?.social.spotify && (
                                 <a
-                                  href={`https://open.spotify.com/user/${user.social.spotify}`}
+                                  href={`https://open.spotify.com/user/${displayedUser?.social.spotify}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-2 text-gray-600 hover:text-[#1DB954] transition-colors group"
@@ -674,7 +751,7 @@ export function UserProfileComponente({
                       <>
                         <div className="text-center">
                           <div className="text-xl md:text-2xl text-[#333366]">
-                            {user.stats.posts}
+                            {displayedUser?.stats.posts}
                           </div>
                           <div className="text-sm text-gray-600">Artículos</div>
                         </div>
@@ -683,7 +760,7 @@ export function UserProfileComponente({
                           onClick={() => setActiveTab("followers")}
                         >
                           <div className="text-xl md:text-2xl text-[#333366]">
-                            {user.stats.followers}
+                            {displayedUser?.stats.followers}
                           </div>
                           <div className="text-sm text-gray-600">
                             Seguidores
@@ -694,7 +771,7 @@ export function UserProfileComponente({
                           onClick={() => setActiveTab("following")}
                         >
                           <div className="text-xl md:text-2xl text-[#333366]">
-                            {user.stats.following}
+                            {displayedUser?.stats.following}
                           </div>
                           <div className="text-sm text-gray-600">Siguiendo</div>
                         </div>
@@ -717,7 +794,7 @@ export function UserProfileComponente({
                           onClick={() => setActiveTab("followers")}
                         >
                           <div className="text-xl md:text-2xl text-[#333366]">
-                            {user.stats.followers}
+                            {displayedUser?.stats.followers}
                           </div>
                           <div className="text-sm text-gray-600">
                             Seguidores
@@ -728,7 +805,7 @@ export function UserProfileComponente({
                           onClick={() => setActiveTab("following")}
                         >
                           <div className="text-xl md:text-2xl text-[#333366]">
-                            {user.stats.following}
+                            {displayedUser?.stats.following}
                           </div>
                           <div className="text-sm text-gray-600">Siguiendo</div>
                         </div>
@@ -755,10 +832,10 @@ export function UserProfileComponente({
                       Artículos ({userPosts.length})
                     </TabsTrigger>
                     <TabsTrigger value="followers" className="flex-1">
-                      Seguidores ({user.stats.followers})
+                      Seguidores ({displayedUser?.stats.followers})
                     </TabsTrigger>
                     <TabsTrigger value="following" className="flex-1">
-                      Siguiendo ({user.stats.following})
+                      Siguiendo ({displayedUser?.stats.following})
                     </TabsTrigger>
                   </>
                 ) : (
@@ -767,10 +844,10 @@ export function UserProfileComponente({
                       Interacciones ({interactedPosts.length})
                     </TabsTrigger>
                     <TabsTrigger value="followers" className="flex-1">
-                      Seguidores ({user.stats.followers})
+                      Seguidores ({displayedUser?.stats.followers})
                     </TabsTrigger>
                     <TabsTrigger value="following" className="flex-1">
-                      Siguiendo ({user.stats.following})
+                      Siguiendo ({displayedUser?.stats.following})
                     </TabsTrigger>
                   </>
                 )}
@@ -933,7 +1010,9 @@ export function UserProfileComponente({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => router.push(`/comunidad/${user.id}`)}
+                            onClick={() =>
+                              router.push(`/comunidad/${displayedUser?.id}`)
+                            }
                           >
                             Ver perfil
                           </Button>
@@ -1002,7 +1081,7 @@ export function UserProfileComponente({
                   <div className="flex items-center gap-2 mb-4">
                     <DollarSign className="h-5 w-5 text-[#333366]" />
                     <h3 className="text-lg text-[#333366]">
-                      Apoya a {user?.name ? user.name.split(" ")[0] : "Usuario"}
+                      Apoya a {displayedUser?.name}
                     </h3>
                   </div>
                   <p className="text-sm text-gray-600 mb-4">
@@ -1067,14 +1146,17 @@ export function UserProfileComponente({
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg mb-4 text-[#333366]">
-                  Sobre {user?.name ? user.name.split(" ")[0] : "Usuario"}
+                  Sobre{" "}
+                  {displayedUser?.name
+                    ? displayedUser?.name.split(" ")[0]
+                    : "Usuario"}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div>
                     <span className="text-gray-600">Miembro desde:</span>
                     <p className="text-[#333366]">
-                      {user.joinedDate
-                        ? new Date(user.joinedDate)
+                      {displayedUser?.joinedDate
+                        ? new Date(displayedUser?.joinedDate)
                             .toLocaleDateString("es-MX", {
                               year: "numeric",
                               month: "long",
@@ -1091,7 +1173,7 @@ export function UserProfileComponente({
                           Total de artículos:
                         </span>
                         <p className="text-[#333366]">
-                          {user.stats.posts} publicaciones
+                          {displayedUser?.stats.posts} publicaciones
                         </p>
                       </div>
                       <Separator />
@@ -1110,8 +1192,8 @@ export function UserProfileComponente({
                   <div>
                     <span className="text-gray-600">Comunidad:</span>
                     <p className="text-[#333366]">
-                      {(user?.stats?.followers ?? 0) +
-                        (user?.stats?.following ?? 0)}{" "}
+                      {(displayedUser?.stats?.followers ?? 0) +
+                        (displayedUser?.stats?.following ?? 0)}{" "}
                       conexiones
                     </p>
                   </div>
@@ -1153,7 +1235,7 @@ export function UserProfileComponente({
                       </span>
                       <span className="text-xl">
                         {(
-                          (user?.stats?.followers ?? 0) *
+                          (displayedUser?.stats?.followers ?? 0) *
                           (userPosts?.length ?? 0)
                         ).toLocaleString()}
                       </span>
@@ -1172,8 +1254,8 @@ export function UserProfileComponente({
                       <div className="text-center">
                         <div className="text-4xl mb-3">🚀</div>
                         <h3 className="text-lg mb-3">
-                          {user.name} ya forma parte de la comunidad de
-                          creadores de contenido
+                          {displayedUser?.name} ya forma parte de la comunidad
+                          de creadores de contenido
                         </h3>
                         <p className="text-sm mb-6 text-[#333366]/90">
                           Tú también puedes hacerlo uniéndote al Programa de
@@ -1194,7 +1276,7 @@ export function UserProfileComponente({
                       <div className="text-center">
                         <div className="text-4xl mb-3">📬</div>
                         <h3 className="text-lg mb-3">
-                          {user.name} ya es parte de la comunidad como
+                          {displayedUser?.name} ya es parte de la comunidad como
                           suscriptor
                         </h3>
                         <p className="text-sm mb-6 text-[#333366]/90">
@@ -1232,7 +1314,7 @@ export function UserProfileComponente({
               <div className="text-center pt-4 space-y-4">
                 <p className="text-base text-gray-700">
                   <span className="font-semibold text-[#333366]">
-                    {user.name}
+                    {displayedUser?.name}
                   </span>{" "}
                   ya forma parte de los creadores verificados de Babelink.
                 </p>
@@ -1255,7 +1337,7 @@ export function UserProfileComponente({
           <div className="flex flex-col gap-3 mt-4">
             <Button
               className="w-full bg-[#333366] hover:bg-[#333366]/90 text-white"
-              onClick={() => router.push("/preregistro")}
+              onClick={() => router.push("/creadores")}
             >
               Conocer el Programa de Creadores
             </Button>
@@ -1357,6 +1439,21 @@ export function UserProfileComponente({
                     setEditForm((prev) => ({ ...prev, name: e.target.value }))
                   }
                   placeholder="Tu nombre completo"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="username">Nombre de Usuario</Label>
+                <Input
+                  id="username"
+                  value={editForm.username}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      username: e.target.value,
+                    }))
+                  }
+                  placeholder="Tu nombre de usuario"
                 />
               </div>
 
