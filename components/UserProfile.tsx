@@ -173,33 +173,31 @@ export function UserProfileComponente({
 
   useEffect(() => {
     if (isOwnProfile && currentUser) {
-      setUser({
-        ...currentUser,
-        avatar: currentUser.avatar || "",
-        coverImage: currentUser.coverImage || "",
-        location: currentUser.location || "",
-        website: currentUser.website || "",
-        bio: currentUser.bio || "Miembro de la comunidad Babelink",
-        social: {
-          youtube: currentUser.social?.youtube || "",
-          tiktok: currentUser.social?.tiktok || "",
-          instagram: currentUser.social?.instagram || "",
-          linkedin: currentUser.social?.linkedin || "",
-          facebook: currentUser.social?.facebook || "",
-          spotify: currentUser.social?.spotify || "",
-        },
-        stats: currentUser.stats || { posts: 0, followers: 0, following: 0 },
-        badges: currentUser.badges || [],
-      });
-    }
-  }, [currentUser, isOwnProfile, searchParams]);
+      // retrasamos la actualización de estado para evitar el warning
+      const timer = setTimeout(() => {
+        setUser({
+          ...currentUser,
+          avatar: currentUser.avatar || "",
+          coverImage: currentUser.coverImage || "",
+          location: currentUser.location || "",
+          website: currentUser.website || "",
+          bio: currentUser.bio || "Miembro de la comunidad Babelink",
+          social: {
+            youtube: currentUser.social?.youtube || "",
+            tiktok: currentUser.social?.tiktok || "",
+            instagram: currentUser.social?.instagram || "",
+            linkedin: currentUser.social?.linkedin || "",
+            facebook: currentUser.social?.facebook || "",
+            spotify: currentUser.social?.spotify || "",
+          },
+          stats: currentUser.stats || { posts: 0, followers: 0, following: 0 },
+          badges: currentUser.badges || [],
+        });
+      }, 0);
 
-  useEffect(() => {
-    // Abrimos el modal automáticamente si es nuestro perfil y ?edit=t está en la URL
-    if (isOwnProfile && _user && searchParams.get("edit") === "t") {
-      handleOpenEditModal();
+      return () => clearTimeout(timer);
     }
-  }, [searchParams, isOwnProfile, _user]);
+  }, [currentUser, isOwnProfile]);
 
   // Inicializar user cuando carga currentUser o _user
   const displayedUser = useMemo<UserProfile | null>(() => {
@@ -315,76 +313,73 @@ export function UserProfileComponente({
   };
 
   const handleOpenEditModal = () => {
-    if (isOwnProfile) {
-      setEditForm({
-        name: _user?.name || "",
-        username: _user?.username || "",
-        bio: _user?.bio || "",
-        specialty: _user?.specialty || "",
-        location: _user?.location || "",
-        website: _user?.website || "",
-        avatar: _user?.avatar || "",
-        coverImage: _user?.coverImage || "",
-        social: {
-          youtube: _user?.social?.youtube || "",
-          tiktok: _user?.social?.tiktok || "",
-          instagram: _user?.social?.instagram || "",
-          linkedin: _user?.social?.linkedin || "",
-          facebook: _user?.social?.facebook || "",
-          spotify: _user?.social?.spotify || "",
-        },
-      });
+    if (!_user) return;
 
-      setShowEditModal(true);
-    }
+    setEditForm({
+      name: _user.name || "",
+      username: _user.username || "",
+      bio: _user.bio || "",
+      specialty: _user.specialty || "",
+      location: _user.location || "",
+      website: _user.website || "",
+      avatar: _user.avatar || "",
+      coverImage: _user.coverImage || "",
+      social: {
+        youtube: _user.social?.youtube || "",
+        tiktok: _user.social?.tiktok || "",
+        instagram: _user.social?.instagram || "",
+        linkedin: _user.social?.linkedin || "",
+        facebook: _user.social?.facebook || "",
+        spotify: _user.social?.spotify || "",
+      },
+    });
+
+    setShowEditModal(true);
   };
 
+  // Abrir modal solo una vez y llenar editForm sin causar render en cascada
+  useEffect(() => {
+    if (isOwnProfile && _user && searchParams.get("edit") === "t") {
+      // Ejecutar de forma asíncrona para evitar el warning de React
+      const timer = setTimeout(() => {
+        handleOpenEditModal();
+
+        // Limpiar el query param para que no vuelva a disparar el efecto
+        const url = new URL(window.location.href);
+        url.searchParams.delete("edit");
+        window.history.replaceState({}, "", url.toString());
+      }, 0);
+
+      return () => clearTimeout(timer); // limpiar si el efecto se desmonta
+    }
+  }, [_user, isOwnProfile, searchParams]);
+
+  // Guardar cambios
   const handleSaveProfile = async () => {
     if (!currentUser?.id) return;
 
     const updateData = {
-      name: editForm.name,
-      username: editForm.username,
-      bio: editForm.bio,
-      specialty: editForm.specialty,
-      location: editForm.location || "",
-      website: editForm.website || "",
-      avatar: editForm.avatar || "",
-      coverImage: editForm.coverImage || "",
-      social: {
-        youtube: editForm.social.youtube || "",
-        tiktok: editForm.social.tiktok || "",
-        instagram: editForm.social.instagram || "",
-        linkedin: editForm.social.linkedin || "",
-        facebook: editForm.social.facebook || "",
-        spotify: editForm.social.spotify || "",
-      },
+      ...editForm,
       updatedOn: serverTimestamp(),
     };
 
     try {
-      await setDoc(doc(db, "usuarios", currentUser.id), updateData, {
-        merge: true,
-      });
+      const userRef = doc(db, "usuarios", currentUser.id);
+      await setDoc(userRef, updateData, { merge: true });
 
-      setUser((prev) =>
-        prev
-          ? {
-              ...prev,
-              ...updateData,
-            }
-          : null
-      );
+      // Actualizar estado local para reflejar cambios en la UI
+      setUser((prev) => (prev ? { ...prev, ...updateData } : null));
 
       toast.success("Perfil actualizado correctamente");
+      router.replace("/perfil"); // Remover query param
+      setShowEditModal(false);
     } catch (error) {
       console.error("Error actualizando perfil:", error);
       toast.error("No se pudo actualizar el perfil");
-    } finally {
-      setShowEditModal(false);
     }
   };
 
+  // Subir imagen y actualizar estado + Firestore
   const handleImageUpload = async (type: "avatar" | "cover") => {
     if (!currentUser?.id) return;
 
@@ -396,42 +391,27 @@ export function UserProfileComponente({
       if (!file) return;
 
       try {
-        // Crear referencia en Firebase Storage
         const storage = getStorage();
         const storageRef = ref(
           storage,
           `users/${currentUser.id}/${type}-${Date.now()}-${file.name}`
         );
 
-        // Subir archivo
         await uploadBytes(storageRef, file);
-
-        // Obtener URL pública de la imagen
         const downloadURL = await getDownloadURL(storageRef);
 
-        // Actualizar editForm local
-        setEditForm((prev) =>
-          type === "avatar"
-            ? { ...prev, avatar: downloadURL }
-            : { ...prev, coverImage: downloadURL }
-        );
+        // Actualizar formulario
+        setEditForm((prev) => ({ ...prev, [type]: downloadURL }));
 
-        // Actualizar Firestore directamente si quieres reflejarlo de inmediato
+        // Actualizar Firestore
         const userRef = doc(db, "usuarios", currentUser.id);
         await updateDoc(userRef, {
           [type]: downloadURL,
           updatedOn: serverTimestamp(),
         });
 
-        // Actualizar estado local para refrescar UI
-        setUser((prev) =>
-          prev
-            ? {
-                ...prev,
-                [type]: downloadURL,
-              }
-            : prev
-        );
+        // Actualizar estado local para reflejar la imagen en UI
+        setUser((prev) => (prev ? { ...prev, [type]: downloadURL } : prev));
 
         toast.success("Imagen actualizada correctamente");
       } catch (error) {
