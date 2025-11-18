@@ -1,8 +1,12 @@
 "use client";
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
-
+import {
+  doc,
+  serverTimestamp,
+  updateDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import {
   createContext,
   useContext,
@@ -10,7 +14,7 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { UserProfile } from "../../data/userData";
+import { UserProfile } from "../data/userData";
 import { auth, db } from "../../firebaseMessaging";
 
 interface AuthContextType {
@@ -26,41 +30,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Detecta login/logout automáticamente
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let unsubscribeUserDoc: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Usuario NO logueado
       if (!firebaseUser) {
         setUser(null);
+        if (unsubscribeUserDoc) unsubscribeUserDoc();
+        unsubscribeUserDoc = null;
         setLoading(false);
         return;
       }
 
       const userRef = doc(db, "usuarios", firebaseUser.uid);
-      const snap = await getDoc(userRef);
 
-      if (snap.exists()) {
-        const data = snap.data() as UserProfile;
+      // 🔥 Actualizar lastAccess UNA sola vez por login
+      await updateDoc(userRef, {
+        lastAccess: serverTimestamp(),
+      });
 
-        // 🔥 ACTUALIZAR lastAccess cada vez que el usuario abre la app
-        await updateDoc(userRef, {
-          lastAccess: serverTimestamp(),
-        });
-
-        setUser({
-          ...data,
-          lastAccess: data.lastAccess ?? null, // opcional: reflejo inmediato en UI
-        });
-      } else {
-        setUser(null);
-      }
-
-      setLoading(false);
+      // 🔥 Escuchar cambios del usuario sin escribir nada
+      unsubscribeUserDoc = onSnapshot(userRef, (snap) => {
+        if (snap.exists()) {
+          setUser(snap.data() as UserProfile);
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      });
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeUserDoc) unsubscribeUserDoc();
+    };
   }, []);
 
-  // 🔥 Logout real con Firebase
   const logout = async () => {
     await signOut(auth);
     setUser(null);

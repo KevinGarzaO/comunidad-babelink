@@ -20,9 +20,9 @@ export interface UserProfile {
   social?: SocialLinks;
   badges: string[];
   isVerified: boolean;
-  createdOn?: Timestamp | FieldValue | null;
-  updatedOn?: Timestamp | FieldValue | null;
-  lastAccess?: Timestamp | FieldValue | null;
+  createdOn?: Timestamp | FieldValue | null | Date;
+  updatedOn?: Timestamp | FieldValue | null | Date;
+  lastAccess?: Timestamp | FieldValue | null | Date;
 }
 
 type SocialLinks = {

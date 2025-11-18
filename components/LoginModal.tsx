@@ -8,22 +8,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { UserCredential, type User as FirebaseUser } from "firebase/auth";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { Mail, Github, CheckCircle2, User } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "../src/contexts/AuthContext";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   GithubAuthProvider,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 
 import { auth, db } from "../firebaseMessaging";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { UserProfile } from "../data/userData";
+import { UserProfile } from "../src/data/userData";
+import { useRouter } from "next/navigation";
 
 interface LoginModalProps {
   open: boolean;
@@ -31,7 +35,7 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ open, onOpenChange }: LoginModalProps) {
-  const { login } = useAuth();
+  const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,66 +73,224 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (mode === "register") {
-      // Validaciones para registro
-      if (!name || !email || !password || !confirmPassword) {
-        toast.error("Por favor completa todos los campos");
-        return;
-      }
-      if (password !== confirmPassword) {
-        toast.error("Las contraseñas no coinciden");
-        return;
-      }
-      if (password.length < 6) {
-        toast.error("La contraseña debe tener al menos 6 caracteres");
-        return;
-      }
-    } else {
-      // Validaciones para login
-      if (!email || !password) return;
-    }
-
     setIsLoading(true);
-    // Simular inicio de sesión o registro
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
 
-      // Crear usuario mock
-      const userData = {
-        id: Math.floor(Math.random() * 1000),
-        name: name || "Usuario de Babelink",
-        email: email,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        username: email.split("@")[0],
-        bio: "Miembro de la comunidad Babelink",
-        isVerified: false, // Usuarios normales no son verificados
-      };
+    try {
+      // -----------------------------
+      // Validaciones para registro
+      // -----------------------------
+      if (mode === "register") {
+        try {
+          validateName(name);
+          validateEmail(email);
+          validatePassword(password, confirmPassword, name, email);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (validationError: any) {
+          toast.error(validationError.message);
+          setIsLoading(false);
+          return;
+        }
+      }
 
-      // Guardar usuario en el contexto
-      login(userData);
+      let userCredential: UserCredential;
+      let firebaseUser: FirebaseUser = {} as FirebaseUser;
 
+      // -----------------------------
+      // Login
+      // -----------------------------
+      if (mode === "login") {
+        try {
+          userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          firebaseUser = userCredential.user;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+          if (err.code === "auth/user-not-found")
+            toast.error("Este correo no está registrado.");
+          else if (err.code === "auth/wrong-password")
+            toast.error("Contraseña incorrecta.");
+          else toast.error("Error al iniciar sesión.");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // -----------------------------
+      // Registro
+      // -----------------------------
+      if (mode === "register") {
+        try {
+          userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          firebaseUser = userCredential.user;
+          await sendEmailVerification(firebaseUser);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+          if (err.code === "auth/email-already-in-use")
+            toast.error("Este correo ya está registrado.");
+          else if (err.code === "auth/invalid-email")
+            toast.error("Correo no válido.");
+          else if (err.code === "auth/weak-password")
+            toast.error("Contraseña débil.");
+          else toast.error("Ocurrió un error al registrar al usuario.");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // -----------------------------
+      // Firestore
+      // -----------------------------
+      const userRef = doc(db, "usuarios", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // Usuario nuevo → crear documento
+        const newUserData: UserProfile = {
+          id: firebaseUser.uid,
+          name: name || firebaseUser.displayName || "Usuario de Babelink",
+          username: email.split("@")[0],
+          email,
+          avatar:
+            firebaseUser.photoURL ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+          coverImage: null,
+          specialty: "",
+          bio: "",
+          location: null,
+          website: null,
+          joinedDate: new Date().toISOString(),
+          stats: { posts: 0, followers: 0, following: 0 },
+          social: {},
+          badges: [],
+          isVerified: false,
+          createdOn: serverTimestamp(),
+          updatedOn: serverTimestamp(),
+          lastAccess: serverTimestamp(),
+        };
+
+        await setDoc(userRef, newUserData);
+        setUser(newUserData);
+        router.push("/perfil?edit=t"); // abrir modal de edición solo para usuario nuevo
+      } else {
+        // Usuario existente → actualizar campos dinámicos
+        const existingData = userSnap.data() as UserProfile;
+        const updateData = {
+          updatedOn: serverTimestamp(),
+          lastAccess: serverTimestamp(),
+        };
+
+        await setDoc(userRef, updateData, { merge: true });
+        setUser({ ...existingData, ...updateData });
+      }
+
+      // -----------------------------
+      // UI y Toast
+      // -----------------------------
       toast.success(
         mode === "login" ? "¡Inicio de sesión exitoso!" : "¡Registro exitoso!",
         {
           description:
             mode === "login"
-              ? "Bienvenido de vuelta a Babelink."
-              : "Tu cuenta ha sido creada exitosamente.",
+              ? "Bienvenido de vuelta."
+              : "Tu cuenta ha sido creada.",
         }
       );
-      setTimeout(() => {
-        setIsSuccess(false);
-        setEmail("");
-        setPassword("");
-        setName("");
-        setConfirmPassword("");
-        setMode("login");
-        onOpenChange(false);
-      }, 2000);
-    }, 1000);
+
+      // Limpiar formulario y cerrar modal
+      closeForm();
+    } catch (error) {
+      console.error(error);
+      toast.error("Ocurrió un error, por favor intenta nuevamente.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const validateName = (name: string) => {
+    if (!name.trim()) throw new Error("El nombre no puede estar vacío.");
+    if (name.length < 3) throw new Error("El nombre es muy corto.");
+    if (name.length > 50) throw new Error("El nombre es demasiado largo.");
+    if (/\d/.test(name)) throw new Error("El nombre no puede tener números.");
+    if (/[^a-zA-ZÀ-ÿ\s]/.test(name))
+      throw new Error("El nombre contiene caracteres inválidos.");
+    if (name.split(" ").length < 2)
+      throw new Error("Ingresa tu nombre completo.");
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) throw new Error("El correo no es válido.");
+  };
+
+  const validatePassword = (
+    password: string,
+    confirmPassword: string,
+    name: string,
+    email: string
+  ) => {
+    if (password !== confirmPassword)
+      throw new Error("Las contraseñas no coinciden.");
+
+    if (password.length < 8)
+      throw new Error("La contraseña debe tener mínimo 8 caracteres.");
+
+    if (!/[A-Z]/.test(password))
+      throw new Error("Debe contener al menos una letra mayúscula.");
+
+    if (!/[a-z]/.test(password))
+      throw new Error("Debe contener al menos una letra minúscula.");
+
+    if (!/[0-9]/.test(password))
+      throw new Error("Debe contener al menos un número.");
+
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
+      throw new Error("Debe contener al menos un carácter especial.");
+
+    if (password.includes(" "))
+      throw new Error("La contraseña no puede contener espacios.");
+
+    if (password.toLowerCase().includes(name.toLowerCase()))
+      throw new Error("La contraseña no puede contener tu nombre.");
+
+    if (password.toLowerCase().includes(email.split("@")[0].toLowerCase()))
+      throw new Error("La contraseña no puede contener tu correo.");
+
+    const commonPasswords = [
+      "123456",
+      "password",
+      "qwerty",
+      "letmein",
+      "welcome",
+      "iloveyou",
+      "admin",
+      "abc123",
+      "111111",
+      "123123",
+    ];
+
+    if (commonPasswords.includes(password.toLowerCase()))
+      throw new Error("La contraseña es demasiado común.");
+  };
+
+  const closeForm = () => {
+    setTimeout(() => {
+      setIsSuccess(false);
+      setEmail("");
+      setPassword("");
+      setName("");
+      setConfirmPassword("");
+      setMode("login"); // vuelve a login por defecto
+      onOpenChange(false); // cierra el modal
+    }, 1500); // espera para mostrar animación de éxito
+  };
+
   const handleClose = () => {
     if (!isLoading) {
       setEmail("");
@@ -147,6 +309,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     setName("");
     setConfirmPassword("");
   };
+
   const handleLoginWithGoogle = async () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
@@ -156,9 +319,10 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
       const user = result.user;
 
       const userRef = doc(db, "usuarios", user.uid);
-      const existingUser = await getDoc(userRef);
+      const existingUserSnap = await getDoc(userRef);
 
-      if (!existingUser.exists()) {
+      if (!existingUserSnap.exists()) {
+        // Usuario NUEVO → crear documento completo
         const newUserData: UserProfile = {
           id: user.uid,
           name: user.displayName || "Usuario de Babelink",
@@ -166,55 +330,53 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             ? user.email.split("@")[0]
             : `user${Math.floor(Math.random() * 1000)}`,
           email: user.email || "",
-
           avatar:
             user.photoURL ||
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
-
           coverImage: null,
           specialty: "",
           bio: "",
           location: null,
           website: null,
-
           joinedDate: new Date().toISOString(),
-
           stats: { posts: 0, followers: 0, following: 0 },
           social: {},
           badges: [],
           isVerified: false,
-
           createdOn: serverTimestamp(),
           updatedOn: serverTimestamp(),
           lastAccess: serverTimestamp(),
         };
 
-        await setDoc(userRef, newUserData);
+        await setDoc(userRef, newUserData); // ❌ Sin merge, crea documento
         setUser(newUserData);
+
+        router.push("/perfil?edit=t"); // Abrir edición de perfil
       } else {
-        const existingData = existingUser.data() as UserProfile;
+        // Usuario EXISTENTE → actualizar solo campos dinámicos
+        const existingData = existingUserSnap.data() as UserProfile;
 
         const updateData = {
           name: user.displayName || existingData.name,
           avatar: user.photoURL || existingData.avatar,
           email: user.email || existingData.email,
-
           updatedOn: serverTimestamp(),
           lastAccess: serverTimestamp(),
         };
 
-        await setDoc(userRef, updateData, { merge: true });
-
-        setUser({ ...existingData, ...updateData });
+        await setDoc(userRef, updateData, { merge: true }); // ✅ Merge solo si existe
+        const refreshedDoc = await getDoc(userRef);
+        if (refreshedDoc.exists()) setUser(refreshedDoc.data() as UserProfile);
       }
 
+      // UI & STATES
       setRegistro(true);
       onOpenChange(false);
       setIsLoading(false);
       setIsSuccess(true);
 
       toast.success("¡Inicio de sesión exitoso!", {
-        description: `Bienvenido a Babelink ${user.displayName}`,
+        description: `Bienvenido a Babelink ${user.displayName || ""}`,
       });
 
       setTimeout(() => {
@@ -227,7 +389,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         onOpenChange(false);
       }, 2000);
     } catch (error) {
-      console.error("Error durante login:", error);
+      console.error("Error durante login con Google:", error);
       setIsLoading(false);
       toast.error("Hubo un problema con el inicio de sesión.");
     }
@@ -242,10 +404,10 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
       const user = result.user;
 
       const userRef = doc(db, "usuarios", user.uid);
-      const existingUser = await getDoc(userRef);
+      const existingUserSnap = await getDoc(userRef);
 
-      if (!existingUser.exists()) {
-        // Usuario NUEVO
+      if (!existingUserSnap.exists()) {
+        // Usuario NUEVO → crear documento completo
         const newUserData: UserProfile = {
           id: user.uid,
           name: user.displayName || "Usuario de Babelink",
@@ -253,58 +415,53 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             ? user.email.split("@")[0]
             : `user${Math.floor(Math.random() * 1000)}`,
           email: user.email || "",
-
           avatar:
             user.photoURL ||
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
-
           coverImage: null,
           specialty: "",
           bio: "",
           location: null,
           website: null,
-
           joinedDate: new Date().toISOString(),
-
           stats: { posts: 0, followers: 0, following: 0 },
           social: {},
           badges: [],
           isVerified: false,
-
           createdOn: serverTimestamp(),
           updatedOn: serverTimestamp(),
           lastAccess: serverTimestamp(),
         };
 
-        await setDoc(userRef, newUserData);
-
+        await setDoc(userRef, newUserData); // ❌ NO merge
         setUser(newUserData);
+
+        router.push("/perfil?edit=t"); // Abrir edición de perfil
       } else {
-        // Usuario YA EXISTE → actualizar solo campos dinámicos
-        const existingData = existingUser.data() as UserProfile;
+        // Usuario EXISTENTE → actualizar campos necesarios
+        const existingData = existingUserSnap.data() as UserProfile;
 
         const updateData = {
           name: user.displayName || existingData.name,
           avatar: user.photoURL || existingData.avatar,
           email: user.email || existingData.email,
-
           updatedOn: serverTimestamp(),
           lastAccess: serverTimestamp(),
         };
 
-        await setDoc(userRef, updateData, { merge: true });
-
-        setUser({ ...existingData, ...updateData });
+        await setDoc(userRef, updateData, { merge: true }); // ✅ Merge solo si existe
+        const refreshedDoc = await getDoc(userRef);
+        if (refreshedDoc.exists()) setUser(refreshedDoc.data() as UserProfile);
       }
 
-      // UI / estados
+      // UI
       setRegistro(true);
       onOpenChange(false);
       setIsLoading(false);
       setIsSuccess(true);
 
       toast.success("¡Inicio de sesión exitoso!", {
-        description: `Bienvenido a Babelink ${user.displayName}`,
+        description: `Bienvenido a Babelink ${user.displayName || ""}`,
       });
 
       setTimeout(() => {
@@ -317,7 +474,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         onOpenChange(false);
       }, 2000);
     } catch (error) {
-      console.error("Error durante login:", error);
+      console.error("Error durante login con GitHub:", error);
       setIsLoading(false);
       toast.error("Hubo un problema con el inicio de sesión.");
     }

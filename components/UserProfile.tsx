@@ -47,7 +47,7 @@ import { communityPosts } from "../src/data/community";
 import { toast } from "sonner";
 import { LoginModal } from "./LoginModal";
 import { useAuth } from "../src/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   collection,
   query,
@@ -60,7 +60,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseMessaging";
-import { UserProfile } from "../data/userData";
+import { UserProfile } from "../src/data/userData";
 
 interface UserProfileProps {
   userId?: string;
@@ -74,11 +74,40 @@ export function UserProfileComponente({
   onPostClick,
   onUserClick,
 }: UserProfileProps) {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const isCreator = true;
   const { user: currentUser } = useAuth();
   const isOwnProfile = !userId || userId === currentUser?.id;
   const [_user, setUser] = useState<UserProfile | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [activeTab, setActiveTab] = useState(
+    isCreator ? "posts" : "interactions"
+  );
+  const [donationAmount, setDonationAmount] = useState<number>(5);
+  const [showVerifiedModal, setShowVerifiedModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  // Estados para el formulario de edición
+  const [editForm, setEditForm] = useState({
+    name: "",
+    username: "",
+    bio: "",
+    specialty: "",
+    location: "",
+    website: "",
+    avatar: "",
+    coverImage: "",
+    social: {
+      youtube: "",
+      tiktok: "",
+      instagram: "",
+      linkedin: "",
+      facebook: "",
+      spotify: "",
+    },
+  });
 
   const getUserByUsername = async (
     username: string
@@ -142,35 +171,6 @@ export function UserProfileComponente({
     loadUser();
   }, [userId]); // se ejecuta cuando userId cambia
 
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState(
-    isCreator ? "posts" : "interactions"
-  );
-  const [donationAmount, setDonationAmount] = useState<number>(5);
-  const [showVerifiedModal, setShowVerifiedModal] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-
-  // Estados para el formulario de edición
-  const [editForm, setEditForm] = useState({
-    name: "",
-    username: "",
-    bio: "",
-    specialty: "",
-    location: "",
-    website: "",
-    avatar: "",
-    coverImage: "",
-    social: {
-      youtube: "",
-      tiktok: "",
-      instagram: "",
-      linkedin: "",
-      facebook: "",
-      spotify: "",
-    },
-  });
-
   useEffect(() => {
     if (isOwnProfile && currentUser) {
       setUser({
@@ -192,7 +192,14 @@ export function UserProfileComponente({
         badges: currentUser.badges || [],
       });
     }
-  }, [currentUser, isOwnProfile]);
+  }, [currentUser, isOwnProfile, searchParams]);
+
+  useEffect(() => {
+    // Abrimos el modal automáticamente si es nuestro perfil y ?edit=t está en la URL
+    if (isOwnProfile && _user && searchParams.get("edit") === "t") {
+      handleOpenEditModal();
+    }
+  }, [searchParams, isOwnProfile, _user]);
 
   // Inicializar user cuando carga currentUser o _user
   const displayedUser = useMemo<UserProfile | null>(() => {
@@ -508,16 +515,16 @@ export function UserProfileComponente({
                                 key={index}
                                 variant="secondary"
                                 className={`bg-[#E2E3F7] text-[#333366] flex items-center gap-1.5 ${
-                                  badge === "Creadora Verificada"
+                                  badge === "Creador Verificado"
                                     ? "cursor-pointer hover:bg-[#d4d5e9] transition-colors"
                                     : ""
                                 }`}
                                 onClick={() =>
-                                  badge === "Creadora Verificada" &&
+                                  badge === "Creador Verificado" &&
                                   setShowVerifiedModal(true)
                                 }
                               >
-                                {badge === "Creadora Verificada" && (
+                                {badge === "Creador Verificado" && (
                                   <Crown className="h-3.5 w-3.5 text-[#FFCC00] fill-[#FFCC00]" />
                                 )}
                                 {badge === "Top Contributor" && (
