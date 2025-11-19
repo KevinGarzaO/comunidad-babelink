@@ -1,12 +1,7 @@
 "use client";
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import {
-  doc,
-  serverTimestamp,
-  updateDoc,
-  onSnapshot,
-} from "firebase/firestore";
+import { doc, serverTimestamp, setDoc, onSnapshot } from "firebase/firestore";
 import {
   createContext,
   useContext,
@@ -34,7 +29,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let unsubscribeUserDoc: (() => void) | null = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
-      // Usuario NO logueado
       if (!firebaseUser) {
         setUser(null);
         if (unsubscribeUserDoc) unsubscribeUserDoc();
@@ -45,12 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const userRef = doc(db, "usuarios", firebaseUser.uid);
 
-      // 🔥 Actualizar lastAccess UNA sola vez por login
-      await updateDoc(userRef, {
-        lastAccess: serverTimestamp(),
-      });
+      // ahora SIEMPRE crea o actualiza sin fallar
+      await setDoc(userRef, { lastAccess: serverTimestamp() }, { merge: true });
 
-      // 🔥 Escuchar cambios del usuario sin escribir nada
       unsubscribeUserDoc = onSnapshot(userRef, (snap) => {
         if (snap.exists()) {
           setUser(snap.data() as UserProfile);

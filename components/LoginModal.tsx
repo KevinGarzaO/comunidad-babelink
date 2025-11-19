@@ -142,25 +142,20 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           setIsLoading(false);
           return;
         }
-      }
 
-      // -----------------------------
-      // Firestore
-      // -----------------------------
-      const userRef = doc(db, "usuarios", firebaseUser.uid);
-      const userSnap = await getDoc(userRef);
+        // -----------------------------
+        // Firestore seguro (merge)
+        // -----------------------------
+        const userRef = doc(db, "usuarios", firebaseUser.uid);
 
-      if (!userSnap.exists()) {
-        // Usuario nuevo → crear documento
-        const newUserData: UserProfile = {
+        // Datos base
+        const baseUserData: UserProfile = {
           id: firebaseUser.uid,
           name: name || firebaseUser.displayName || "Usuario de Babelink",
           username: email.split("@")[0],
           email,
-          avatar:
-            firebaseUser.photoURL ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-          coverImage: null,
+          avatar: "https://i.ibb.co/4pDNDk1/avatar-default.png",
+          coverImage: "",
           specialty: "",
           bio: "",
           location: null,
@@ -175,23 +170,17 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           lastAccess: serverTimestamp(),
         };
 
-        await setDoc(userRef, newUserData);
-        setUser(newUserData);
-        router.push("/perfil?edit=t"); // abrir modal de edición solo para usuario nuevo
-      } else {
-        // Usuario existente → actualizar campos dinámicos
-        const existingData = userSnap.data() as UserProfile;
-        const updateData = {
-          updatedOn: serverTimestamp(),
-          lastAccess: serverTimestamp(),
-        };
+        // Merge: crea el doc si no existe, actualiza campos dinámicos si existe
+        await setDoc(userRef, baseUserData);
 
-        await setDoc(userRef, updateData, { merge: true });
-        setUser({ ...existingData, ...updateData });
+        // Leer documento actualizado para UI
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          setUser(userSnap.data() as UserProfile);
+        }
       }
-
       // -----------------------------
-      // UI y Toast
+      // Toast + abrir modal para nuevos
       // -----------------------------
       toast.success(
         mode === "login" ? "¡Inicio de sesión exitoso!" : "¡Registro exitoso!",
@@ -203,7 +192,11 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         }
       );
 
-      // Limpiar formulario y cerrar modal
+      if (mode === "register") {
+        router.push("/perfil?edit=t"); // abrir modal de edición solo para usuario nuevo
+      }
+
+      // Limpiar formulario
       closeForm();
     } catch (error) {
       console.error(error);
@@ -353,12 +346,6 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
         router.push("/perfil?edit=t"); // Abrir edición de perfil
       } else {
-        // Usuario EXISTENTE → actualizar solo campos dinámicos
-        const updateData = {
-          lastAccess: serverTimestamp(),
-        };
-
-        await setDoc(userRef, updateData, { merge: true }); // ✅ Merge solo si existe
         const refreshedDoc = await getDoc(userRef);
         if (refreshedDoc.exists()) setUser(refreshedDoc.data() as UserProfile);
       }
@@ -432,12 +419,6 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
         router.push("/perfil?edit=t"); // Abrir edición de perfil
       } else {
-        // Usuario EXISTENTE → actualizar campos necesarios
-        const updateData = {
-          lastAccess: serverTimestamp(),
-        };
-
-        await setDoc(userRef, updateData, { merge: true }); // ✅ Merge solo si existe
         const refreshedDoc = await getDoc(userRef);
         if (refreshedDoc.exists()) setUser(refreshedDoc.data() as UserProfile);
       }
