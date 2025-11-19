@@ -60,11 +60,31 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("size-4", className)} {...props} />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("size-4", className)} {...props} />
+        Nav: ({
+          className,
+          nextMonth,
+          previousMonth,
+          onNextClick,
+          onPreviousClick,
+        }) => (
+          <div
+            className={cn(
+              "flex items-center justify-between w-full",
+              className
+            )}
+          >
+            <button
+              disabled={!previousMonth}
+              onClick={onPreviousClick}
+              className="p-2"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+
+            <button disabled={!nextMonth} onClick={onNextClick} className="p-2">
+              <ChevronRight className="size-4" />
+            </button>
+          </div>
         ),
       }}
       {...props}
