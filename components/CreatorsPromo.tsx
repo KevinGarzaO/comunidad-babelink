@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export function CreatorsPromo() {
   const router = useRouter();
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-br from-[#333366] via-[#4a4a7a] to-[#333366] text-white relative overflow-hidden">
+    <section className="py-20 md:py-32 bg-linear-to-br from-[#333366] via-[#4a4a7a] to-[#333366] text-white relative overflow-hidden">
       {/* Patrón de fondo */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAgMi4yMS0xLjc5IDQtNCA0cy00LTEuNzktNC00IDEuNzktNCA0LTQgNCAxLjc5IDQgNHptLTQgMjhjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
 
@@ -36,7 +36,7 @@ export function CreatorsPromo() {
             {/* Beneficios rápidos */}
             <div className="space-y-3 pt-4">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[#FFCC00]/20 flex items-center justify-center flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-[#FFCC00]/20 flex items-center justify-center shrink-0">
                   <Check className="h-5 w-5 text-[#FFCC00]" />
                 </div>
                 <span className="text-lg">
@@ -44,7 +44,7 @@ export function CreatorsPromo() {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[#FFCC00]/20 flex items-center justify-center flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-[#FFCC00]/20 flex items-center justify-center shrink-0">
                   <Check className="h-5 w-5 text-[#FFCC00]" />
                 </div>
                 <span className="text-lg">
@@ -52,7 +52,7 @@ export function CreatorsPromo() {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[#FFCC00]/20 flex items-center justify-center flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-[#FFCC00]/20 flex items-center justify-center shrink-0">
                   <Check className="h-5 w-5 text-[#FFCC00]" />
                 </div>
                 <span className="text-lg">Comunidad activa de creadores</span>
@@ -103,7 +103,7 @@ export function CreatorsPromo() {
 
           {/* Imagen */}
           <div className="relative">
-            <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="aspect-4/3 rounded-2xl overflow-hidden shadow-2xl">
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1586985564259-6211deb4c122?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbiUyMHZpZGVvJTIwY2FsbHxlbnwxfHx8fDE3NjE5OTg3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                 alt="Programa de Creadores Babelink"

@@ -7,24 +7,26 @@ interface ComingSoonProps {
   onNavigate: (page: string) => void;
 }
 
-export function ComingSoon({ title, description, onNavigate }: ComingSoonProps) {
+export function ComingSoon({
+  title,
+  description,
+  onNavigate,
+}: ComingSoonProps) {
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-[#E2E3F7] to-white">
+    <div className="min-h-[80vh] flex items-center justify-center bg-linear-to-br from-[#E2E3F7] to-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFCC00]/20 border border-[#FFCC00] mb-4">
             <Sparkles className="h-4 w-4 text-[#333366]" />
             <span className="text-sm text-[#333366]">Próximamente</span>
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-[#333366]">
             {title}
           </h1>
-          
-          <p className="text-xl text-gray-700">
-            {description}
-          </p>
-          
+
+          <p className="text-xl text-gray-700">{description}</p>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
             <Button
               onClick={() => onNavigate("creadores")}
