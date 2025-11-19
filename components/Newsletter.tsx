@@ -4,11 +4,7 @@ import { useState } from "react";
 import { LoginModal } from "./LoginModal";
 import { useAuth } from "../src/contexts/AuthContext";
 
-interface NewsletterProps {
-  onNavigate?: (page: string) => void;
-}
-
-export function Newsletter({ onNavigate }: NewsletterProps = {}) {
+export function Newsletter() {
   const { user: currentUser } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -53,11 +49,7 @@ export function Newsletter({ onNavigate }: NewsletterProps = {}) {
         </div>
       </section>
       {/* Login Modal */}
-      <LoginModal
-        open={isLoginOpen}
-        onOpenChange={setIsLoginOpen}
-        onNavigate={onNavigate}
-      />
+      <LoginModal open={isLoginOpen} onOpenChange={setIsLoginOpen} />
     </>
   );
 }
