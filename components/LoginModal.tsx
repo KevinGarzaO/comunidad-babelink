@@ -354,13 +354,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         router.push("/perfil?edit=t"); // Abrir edición de perfil
       } else {
         // Usuario EXISTENTE → actualizar solo campos dinámicos
-        const existingData = existingUserSnap.data() as UserProfile;
-
         const updateData = {
-          name: user.displayName || existingData.name,
-          avatar: user.photoURL || existingData.avatar,
-          email: user.email || existingData.email,
-          updatedOn: serverTimestamp(),
           lastAccess: serverTimestamp(),
         };
 
@@ -439,13 +433,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         router.push("/perfil?edit=t"); // Abrir edición de perfil
       } else {
         // Usuario EXISTENTE → actualizar campos necesarios
-        const existingData = existingUserSnap.data() as UserProfile;
-
         const updateData = {
-          name: user.displayName || existingData.name,
-          avatar: user.photoURL || existingData.avatar,
-          email: user.email || existingData.email,
-          updatedOn: serverTimestamp(),
           lastAccess: serverTimestamp(),
         };
 

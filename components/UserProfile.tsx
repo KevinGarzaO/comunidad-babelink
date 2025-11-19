@@ -122,6 +122,7 @@ export function UserProfileComponente({
 
     const docSnap = snapshot.docs[0];
     const data = docSnap.data() as DocumentData;
+    console.log("Datos del usuario desde Firestore:", data);
 
     // Convertimos los timestamps a Date o strings si es necesario
     return {
@@ -130,7 +131,7 @@ export function UserProfileComponente({
       username: data.username || "",
       email: data.email || "",
       avatar: data.avatar || "",
-      coverImage: data.coverImage || null,
+      coverImage: data.cover || null,
       specialty: data.specialty || "",
       bio: data.bio || "",
       location: data.location || null,
@@ -383,9 +384,13 @@ export function UserProfileComponente({
   const handleImageUpload = async (type: "avatar" | "cover") => {
     if (!currentUser?.id) return;
 
+    // Mapear "cover" a "coverImage"
+    const field = type === "cover" ? "coverImage" : type;
+
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
@@ -394,31 +399,34 @@ export function UserProfileComponente({
         const storage = getStorage();
         const storageRef = ref(
           storage,
-          `users/${currentUser.id}/${type}-${Date.now()}-${file.name}`
+          `users/${currentUser.id}/${field}-${Date.now()}-${file.name}`
         );
 
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
 
-        // Actualizar formulario
-        setEditForm((prev) => ({ ...prev, [type]: downloadURL }));
-
         // Actualizar Firestore
         const userRef = doc(db, "usuarios", currentUser.id);
         await updateDoc(userRef, {
-          [type]: downloadURL,
+          [field]: downloadURL,
           updatedOn: serverTimestamp(),
         });
 
-        // Actualizar estado local para reflejar la imagen en UI
-        setUser((prev) => (prev ? { ...prev, [type]: downloadURL } : prev));
+        // Actualizar estado local y editForm
+        setUser((prev) => (prev ? { ...prev, [field]: downloadURL } : prev));
+        setEditForm((prev) => ({ ...prev, [field]: downloadURL }));
 
-        toast.success("Imagen actualizada correctamente");
+        toast.success(
+          `${
+            type === "avatar" ? "Avatar" : "Portada"
+          } actualizado correctamente`
+        );
       } catch (error) {
-        console.error(error);
+        console.error("Error al subir imagen:", error);
         toast.error("Error al subir la imagen");
       }
     };
+
     input.click();
   };
 
@@ -438,7 +446,10 @@ export function UserProfileComponente({
       <div className="relative">
         <div className="h-48 md:h-64 lg:h-80 w-full overflow-hidden bg-linear-to-r from-[#333366] to-[#5a5a8a]">
           <ImageWithFallback
-            src={displayedUser?.coverImage ?? undefined}
+            src={
+              displayedUser?.coverImage ??
+              "https://demofree.sirv.com/nope-not-here.jpg"
+            }
             alt="Portada"
             className="w-full h-full object-cover opacity-80"
           />
@@ -856,7 +867,10 @@ export function UserProfileComponente({
                               {post.coverImage && (
                                 <div className="w-32 h-32 shrink-0 rounded-lg overflow-hidden">
                                   <ImageWithFallback
-                                    src={post.coverImage}
+                                    src={
+                                      post.coverImage ||
+                                      "https://demofree.sirv.com/nope-not-here.jpg"
+                                    }
                                     alt={post.title}
                                     className="w-full h-full object-cover"
                                   />
@@ -926,7 +940,10 @@ export function UserProfileComponente({
                             {post.coverImage && (
                               <div className="w-32 h-32 shrink-0 rounded-lg overflow-hidden">
                                 <ImageWithFallback
-                                  src={post.coverImage}
+                                  src={
+                                    post.coverImage ||
+                                    "https://demofree.sirv.com/nope-not-here.jpg"
+                                  }
                                   alt={post.title}
                                   className="w-full h-full object-cover"
                                 />
@@ -1358,7 +1375,10 @@ export function UserProfileComponente({
               >
                 {editForm.coverImage && (
                   <ImageWithFallback
-                    src={editForm.coverImage}
+                    src={
+                      editForm.coverImage ||
+                      "https://demofree.sirv.com/nope-not-here.jpg"
+                    }
                     alt="Portada"
                     className="w-full h-full object-cover"
                   />
