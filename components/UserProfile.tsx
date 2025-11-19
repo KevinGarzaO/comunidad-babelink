@@ -353,6 +353,7 @@ export function UserProfileComponente({
 
       return () => clearTimeout(timer); // limpiar si el efecto se desmonta
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_user, isOwnProfile, searchParams]);
 
   // Guardar cambios

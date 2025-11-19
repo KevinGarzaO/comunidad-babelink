@@ -47,7 +47,7 @@ function CommunityPage({
   const { user } = useAuth();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [selectedPostId] = useState<number | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const filteredPosts = communityPosts.filter((post) => {
@@ -61,11 +61,6 @@ function CommunityPage({
       );
     return matchesTag && matchesSearch;
   });
-
-  const handlePostClick = (postId: number) => {
-    setSelectedPostId(postId);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   const selectedCommunityPost = selectedPostId
     ? communityPosts.find((p) => p.id === selectedPostId)
@@ -401,7 +396,7 @@ function CommunityPage({
 function PostCard({ post }: { post: CommunityPost }) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved] = useState(false);
   const [likesCount, setLikesCount] = useState(post.reactions);
 
   const handleLike = (e: React.MouseEvent) => {
@@ -410,149 +405,144 @@ function PostCard({ post }: { post: CommunityPost }) {
     setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
   };
 
-  const handleSave = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsSaved(!isSaved);
-  };
-
   return (
     <Card
-  className="hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-  onClick={() => {
-    router.push(`/comunidad/${post.author.id}/${post.slug}`);
-  }}
->
-  <CardContent className="p-0">
-    <div className="flex gap-4 p-4">
-      {/* Author Avatar */}
-      <div
-        className="flex-linear-0 cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={(e) => {
-          e.stopPropagation();
-          router.push(`/comunidad/${post.author.id}`);
-        }}
-      >
-        <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200">
-          <ImageWithFallback
-            src={post.author.avatar}
-            alt={post.author.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </div>
-
-      {/* Post Content */}
-      <div className="flex-1 min-w-0">
-        {/* Author Info */}
-        <div className="flex items-center gap-2 mb-2">
-          <span
-            className="text-sm text-[#333366] hover:underline cursor-pointer"
+      className="hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      onClick={() => {
+        router.push(`/comunidad/${post.author.id}/${post.slug}`);
+      }}
+    >
+      <CardContent className="p-0">
+        <div className="flex gap-4 p-4">
+          {/* Author Avatar */}
+          <div
+            className="flex-linear-0 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={(e) => {
               e.stopPropagation();
               router.push(`/comunidad/${post.author.id}`);
             }}
           >
-            {post.author.name}
-          </span>
-
-          {post.author.isVerified && (
-            <Crown
-              className="h-4 w-4 text-[#FFCC00] fill-[#FFCC00]"
-              aria-label="Creador verificado"
-            />
-          )}
-
-          <span className="text-xs text-gray-500">
-            • {post.publishedAt}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h2 className="text-xl text-[#333366] mb-2 hover:text-[#5a5a8a]">
-          {post.title}
-        </h2>
-
-        {/* Excerpt */}
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {post.excerpt}
-        </p>
-
-        {/* Cover Image */}
-        {post.coverImage && (
-          <div className="aspect-video rounded-lg overflow-hidden mb-3">
-            <ImageWithFallback
-              src={post.coverImage}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
+            <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200">
+              <ImageWithFallback
+                src={post.author.avatar}
+                alt={post.author.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
-        )}
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {post.tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
-              #{tag}
-            </Badge>
-          ))}
+          {/* Post Content */}
+          <div className="flex-1 min-w-0">
+            {/* Author Info */}
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className="text-sm text-[#333366] hover:underline cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/comunidad/${post.author.id}`);
+                }}
+              >
+                {post.author.name}
+              </span>
+
+              {post.author.isVerified && (
+                <Crown
+                  className="h-4 w-4 text-[#FFCC00] fill-[#FFCC00]"
+                  aria-label="Creador verificado"
+                />
+              )}
+
+              <span className="text-xs text-gray-500">
+                • {post.publishedAt}
+              </span>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-xl text-[#333366] mb-2 hover:text-[#5a5a8a]">
+              {post.title}
+            </h2>
+
+            {/* Excerpt */}
+            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+              {post.excerpt}
+            </p>
+
+            {/* Cover Image */}
+            {post.coverImage && (
+              <div className="aspect-video rounded-lg overflow-hidden mb-3">
+                <ImageWithFallback
+                  src={post.coverImage}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {post.tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Post Meta */}
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              {/* Like */}
+              <button
+                className={`flex items-center gap-1.5 transition-all hover:scale-110 ${
+                  isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLike(e);
+                }}
+                title={isLiked ? "Te gusta" : "Me gusta"}
+              >
+                <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+                <span className="text-xs">
+                  {isLiked ? "Te gusta" : "Me gusta"} ({likesCount})
+                </span>
+              </button>
+
+              {/* Comments */}
+              <button
+                className="flex items-center gap-1 hover:text-[#333366] transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Aquí puedes abrir modal, ir a comentarios, etc
+                }}
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{post.comments}</span>
+              </button>
+
+              <span className="text-xs">{post.readTime} min de lectura</span>
+
+              {/* Save */}
+              <button
+                className="ml-auto transition-all hover:scale-110"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Aquí puedes abrir modal, ir a comentarios, etc
+                }}
+                title={isSaved ? "Guardado" : "Guardar"}
+              >
+                <Bookmark
+                  className="h-4 w-4"
+                  style={{
+                    fill: isSaved ? "#FFCC00" : "none",
+                    color: isSaved ? "#FFCC00" : "#4b5563",
+                    stroke: isSaved ? "#FFCC00" : "currentColor",
+                  }}
+                />
+              </button>
+            </div>
+          </div>
         </div>
-
-        {/* Post Meta */}
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          {/* Like */}
-          <button
-            className={`flex items-center gap-1.5 transition-all hover:scale-110 ${
-              isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"
-            }`}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLike(e);
-            }}
-            title={isLiked ? "Te gusta" : "Me gusta"}
-          >
-            <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
-            <span className="text-xs">
-              {isLiked ? "Te gusta" : "Me gusta"} ({likesCount})
-            </span>
-          </button>
-
-          {/* Comments */}
-          <button
-            className="flex items-center gap-1 hover:text-[#333366] transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Aquí puedes abrir modal, ir a comentarios, etc
-            }}
-          >
-            <MessageCircle className="h-4 w-4" />
-            <span>{post.comments}</span>
-          </button>
-
-          <span className="text-xs">{post.readTime} min de lectura</span>
-
-          {/* Save */}
-          <button
-            className="ml-auto transition-all hover:scale-110"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Aquí puedes abrir modal, ir a comentarios, etc
-            }}
-            title={isSaved ? "Guardado" : "Guardar"}
-          >
-            <Bookmark
-              className="h-4 w-4"
-              style={{
-                fill: isSaved ? "#FFCC00" : "none",
-                color: isSaved ? "#FFCC00" : "#4b5563",
-                stroke: isSaved ? "#FFCC00" : "currentColor",
-              }}
-            />
-          </button>
-        </div>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+      </CardContent>
+    </Card>
   );
 }
 
