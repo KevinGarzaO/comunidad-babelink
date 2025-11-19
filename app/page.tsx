@@ -15,13 +15,11 @@ import { posts } from "../src/data/posts";
 interface BlogPageProps {
   onSearch: (query: string) => void;
   searchQuery: string;
-  onNavigate: (page: string) => void;
 }
 
 function BlogPage({
   onSearch = () => {},
   searchQuery = "",
-  onNavigate = () => {},
 }: Partial<BlogPageProps>) {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
@@ -41,11 +39,6 @@ function BlogPage({
     setSelectedPostId(postId);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const handleBackToBlog = () => {
-    setSelectedPostId(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const selectedPost = selectedPostId
     ? posts.find((p) => p.id === selectedPostId)
     : null;
@@ -53,21 +46,17 @@ function BlogPage({
   if (selectedPost) {
     return (
       <div className="min-h-screen bg-white">
-        <BlogPost
-          post={selectedPost}
-          onBack={handleBackToBlog}
-          onPostClick={handlePostClick}
-        />
+        <BlogPost slug="" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white">
-      <Hero onNavigate={onNavigate} />
+      <Hero />
       <Categories />
       <FeaturedPosts onPostClick={handlePostClick} />
-      <CreatorsPromo onNavigate={onNavigate} />
+      <CreatorsPromo />
       <BlogCategories />
       <Newsletter />
       <ScrollToTop />
