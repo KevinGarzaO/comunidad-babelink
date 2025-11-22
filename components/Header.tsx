@@ -66,12 +66,22 @@ export function Header() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* LOGO */}
         <button onClick={() => handleNavigation("/")} className="shrink-0">
+          {/* LOGO MOBILE */}
           <Image
-            src={"/images/Logo Babelink/Logo en SVG (3).svg"}
+            src="/images/Logo Babelink/Logo sin fondo para uso general (2).png"
             alt="Babelink"
             width={120}
             height={48}
-            className="h-10 md:h-12 w-auto"
+            className="h-10 w-auto md:hidden"
+          />
+
+          {/* LOGO DESKTOP */}
+          <Image
+            src="/images/Logo Babelink/Logo en SVG (3).svg"
+            alt="Babelink"
+            width={140}
+            height={48}
+            className="h-10 md:h-12 w-auto hidden md:block"
           />
         </button>
 
@@ -127,19 +137,41 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : pathname.startsWith("/creadores") ? (
-            <Button
-              className="hidden md:flex bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366]"
-              onClick={() => router.push("/preregistro")}
-            >
-              Únete por $54 (6 meses)
-            </Button>
+            <>
+              {/* BOTÓN DESKTOP */}
+              <Button
+                className="hidden md:flex bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366]"
+                onClick={() => router.push("/preregistro")}
+              >
+                Únete por $54 (6 meses)
+              </Button>
+
+              {/* BOTÓN MÓVIL */}
+              <Button
+                className="md:hidden bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366] px-3 py-1 text-sm"
+                onClick={() => router.push("/preregistro")}
+              >
+                Unirme
+              </Button>
+            </>
           ) : (
-            <Button
-              className="hidden md:flex bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366]"
-              onClick={() => setIsLoginOpen(true)}
-            >
-              Iniciar sesión
-            </Button>
+            <>
+              {/* BOTÓN DESKTOP */}
+              <Button
+                className="hidden md:flex bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366]"
+                onClick={() => setIsLoginOpen(true)}
+              >
+                Iniciar sesión
+              </Button>
+
+              {/* BOTÓN MÓVIL */}
+              <Button
+                className="md:hidden bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-[#333366] px-3 py-1 text-sm"
+                onClick={() => setIsLoginOpen(true)}
+              >
+                Entrar
+              </Button>
+            </>
           )}
 
           {/* MENU MÓVIL */}
@@ -153,7 +185,7 @@ export function Header() {
               <SheetHeader>
                 <SheetTitle>
                   <Image
-                    src={"/images/Logo Babelink/Logo en SVG (3).svg"}
+                    src="/images/Logo Babelink/Logo en SVG (3).svg"
                     alt="Babelink"
                     width={120}
                     height={40}
