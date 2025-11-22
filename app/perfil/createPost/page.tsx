@@ -1,5 +1,5 @@
 import CreatePost from "../../../components/CreatePost";
 
-export default async function Page() {
+export default function Page() {
   return <CreatePost />;
 }
