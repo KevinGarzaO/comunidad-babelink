@@ -1,5 +1,5 @@
 import { UserProfileComponente } from "../../components/UserProfile";
 
-export default async function Page() {
+export default function Page() {
   return <UserProfileComponente />;
 }
