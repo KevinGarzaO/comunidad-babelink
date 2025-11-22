@@ -1,6 +1,5 @@
 import { UserProfileComponente } from "../../../components/UserProfile";
 
-export default async function Page({ params }: { params: { userId: string } }) {
-  const resolvedParams = await params;
-  return <UserProfileComponente userId={resolvedParams.userId} />;
+export default function Page({ params }: { params: { userId: string } }) {
+  return <UserProfileComponente userId={params.userId} />;
 }
