@@ -122,7 +122,6 @@ export function UserProfileComponente({
 
     const docSnap = snapshot.docs[0];
     const data = docSnap.data() as DocumentData;
-    console.log("Datos del usuario desde Firestore:", data);
 
     // Convertimos los timestamps a Date o strings si es necesario
     return {
@@ -160,9 +159,6 @@ export function UserProfileComponente({
         const data = await getUserByUsername(userId);
         if (data) {
           setUser(data);
-          console.log("Usuario cargado:", data); // loguea los datos recibidos directamente
-        } else {
-          console.log("Usuario no encontrado");
         }
       } catch (error) {
         console.error("Error cargando usuario:", error);
