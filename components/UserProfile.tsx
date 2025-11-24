@@ -1133,10 +1133,7 @@ export function UserProfileComponente({
               <Card>
                 <CardContent className="p-6">
                   <h3 className="text-lg mb-4 text-[#333366]">
-                    Sobre{" "}
-                    {displayedUser?.name
-                      ? displayedUser?.name.split(" ")[0]
-                      : "Usuario"}
+                    Sobre {displayedUser?.name}
                   </h3>
                   <div className="space-y-3 text-sm">
                     <div>
