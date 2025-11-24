@@ -502,7 +502,8 @@ export function UserProfileComponente({
                                     : ""
                                 }`}
                                 onClick={() =>
-                                  badge === "Creador Verificado" &&
+                                  (badge === "Creador Verificado" ||
+                                    badge === "Creadora Verificada") &&
                                   setShowVerifiedModal(true)
                                 }
                               >
