@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation"; // 👈 Importa estos
+import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
@@ -29,7 +29,7 @@ import { auth } from "../firebaseMessaging";
 
 export function Header() {
   const router = useRouter();
-  const pathname = usePathname(); // 👈 Saber en qué página estás
+  const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -103,39 +103,54 @@ export function Header() {
         {/* SEARCH & PROFILE */}
         <div className="flex items-center gap-2">
           {isAuthenticated ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="hidden md:flex items-center gap-2 hover:opacity-80">
-                  <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-[#FFCC00]">
-                    <ImageWithFallback
-                      src={user?.avatar || ""}
-                      alt={user?.name || "Usuario"}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <span className="text-sm max-w-[100px] truncate">
-                    {user?.name}
-                  </span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/perfil")}>
-                  <UserCircle className="mr-2 h-4 w-4" />
-                  <span>Ver mi perfil</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="text-red-600"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Cerrar sesión</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              {/* AVATAR DESKTOP */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hidden md:flex items-center gap-2 hover:opacity-80">
+                    <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-[#FFCC00]">
+                      <ImageWithFallback
+                        src={user?.avatar || ""}
+                        alt={user?.name || "Usuario"}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-sm max-w-[100px] truncate">
+                      {user?.name}
+                    </span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push("/perfil")}>
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Ver mi perfil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-600"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Cerrar sesión</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* AVATAR MÓVIL */}
+              <button
+                onClick={() => router.push("/perfil")}
+                className="md:hidden h-10 w-10 rounded-full overflow-hidden border-2 border-[#FFCC00]"
+              >
+                <ImageWithFallback
+                  src={user?.avatar || ""}
+                  alt={user?.name || "Usuario"}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            </>
           ) : pathname.startsWith("/creadores") ? (
             <>
               {/* BOTÓN DESKTOP */}
