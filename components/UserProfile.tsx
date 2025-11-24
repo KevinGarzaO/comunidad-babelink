@@ -379,6 +379,7 @@ export function UserProfileComponente({
 
   // Subir imagen y actualizar estado + Firestore
   const handleImageUpload = async (type: "avatar" | "cover") => {
+    console.log(currentUser?.id);
     if (!currentUser?.id) return;
 
     // Mapear "cover" a "coverImage"

@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   turbopack: {
-    root: __dirname, // 👈 Indica explícitamente el root del proyecto
+    root: __dirname,
   },
   images: {
     remotePatterns: [
@@ -34,6 +34,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "i.ibb.co",
+      },
+      {
+        protocol: "https",
+        hostname: "babelink-ia.firebasestorage.app", // 👈 FALTABA ESTE!
       },
     ],
   },
