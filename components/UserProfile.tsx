@@ -131,7 +131,7 @@ export function UserProfileComponente({
       username: data.username || "",
       email: data.email || "",
       avatar: data.avatar || "",
-      coverImage: data.cover || null,
+      coverImage: data.coverImage || null,
       specialty: data.specialty || "",
       bio: data.bio || "",
       location: data.location || null,
