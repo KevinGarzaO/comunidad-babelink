@@ -506,7 +506,8 @@ export function UserProfileComponente({
                                   setShowVerifiedModal(true)
                                 }
                               >
-                                {badge === "Creador Verificado" && (
+                                {(badge === "Creador Verificado" ||
+                                  badge === "Creadora Verificada") && (
                                   <Crown className="h-3.5 w-3.5 text-[#FFCC00] fill-[#FFCC00]" />
                                 )}
                                 {badge === "Top Contributor" && (
