@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { getFunctions } from "firebase/functions";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,25 +21,23 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MESAUREMENT_ID,
 };
 
-// Inicializa app solo si no existe
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Servicios principales
 const auth = getAuth(app);
 const db = getFirestore(app);
 const functions = getFunctions(app);
+const storage = getStorage(app);
 
-// 🔐 Providers
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-// 💾 Persistencia (mantiene sesión activa en localStorage)
 setPersistence(auth, browserLocalPersistence);
 
 export {
   auth,
   db,
   functions,
+  storage,
   googleProvider,
   githubProvider,
   signInAnonymously,

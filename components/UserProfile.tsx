@@ -59,15 +59,16 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../firebaseMessaging";
+import { db, storage } from "../firebaseMessaging";
 import { UserProfile } from "../src/data/userData";
+
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface UserProfileProps {
   userId?: string;
   onPostClick?: (postId: number) => void;
-  onUserClick?: (userId: number, isCreator: boolean) => void;
+  onUserClick?: (userId: number) => void;
 }
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export function UserProfileComponente({
   userId,
@@ -239,7 +240,6 @@ export function UserProfileComponente({
       avatar:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
       bio: "Desarrollador Full Stack",
-      isCreator: false,
     },
     {
       id: 102,
@@ -247,7 +247,6 @@ export function UserProfileComponente({
       avatar:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
       bio: "Diseñadora UX/UI",
-      isCreator: false,
     },
     {
       id: 103,
@@ -255,7 +254,6 @@ export function UserProfileComponente({
       avatar:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100",
       bio: "Marketing Digital",
-      isCreator: false,
     },
   ];
 
@@ -266,14 +264,12 @@ export function UserProfileComponente({
       avatar:
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
       bio: "Especialista en IA",
-      isCreator: true,
     },
     {
       id: 104,
       name: "Laura Sánchez",
       avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100",
       bio: "Content Creator",
-      isCreator: true,
     },
     {
       id: 105,
@@ -281,7 +277,6 @@ export function UserProfileComponente({
       avatar:
         "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100",
       bio: "Data Scientist",
-      isCreator: true,
     },
   ];
 
@@ -379,10 +374,8 @@ export function UserProfileComponente({
 
   // Subir imagen y actualizar estado + Firestore
   const handleImageUpload = async (type: "avatar" | "cover") => {
-    console.log(currentUser?.id);
     if (!currentUser?.id) return;
 
-    // Mapear "cover" a "coverImage"
     const field = type === "cover" ? "coverImage" : type;
 
     const input = document.createElement("input");
@@ -394,7 +387,7 @@ export function UserProfileComponente({
       if (!file) return;
 
       try {
-        const storage = getStorage();
+        // ⬇️ Aquí ya usas el storage centralizado
         const storageRef = ref(
           storage,
           `users/${currentUser.id}/${field}-${Date.now()}-${file.name}`
@@ -403,14 +396,14 @@ export function UserProfileComponente({
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
 
-        // Actualizar Firestore
+        // Guardar en Firestore
         const userRef = doc(db, "usuarios", currentUser.id);
         await updateDoc(userRef, {
           [field]: downloadURL,
           updatedOn: serverTimestamp(),
         });
 
-        // Actualizar estado local y editForm
+        // Actualizar estado
         setUser((prev) => (prev ? { ...prev, [field]: downloadURL } : prev));
         setEditForm((prev) => ({ ...prev, [field]: downloadURL }));
 
@@ -993,9 +986,7 @@ export function UserProfileComponente({
                         <div className="flex items-center gap-4">
                           <Avatar
                             className="h-12 w-12 cursor-pointer"
-                            onClick={() =>
-                              onUserClick?.(follower.id, follower.isCreator)
-                            }
+                            onClick={() => onUserClick?.(follower.id)}
                           >
                             <ImageWithFallback
                               src={follower.avatar}
@@ -1045,9 +1036,7 @@ export function UserProfileComponente({
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="text-sm">{followedUser.name}</h4>
-                              {followedUser.isCreator && (
-                                <Crown className="h-3.5 w-3.5 text-[#FFCC00] fill-[#FFCC00]" />
-                              )}
+                              <Crown className="h-3.5 w-3.5 text-[#FFCC00] fill-[#FFCC00]" />
                             </div>
                             <p className="text-xs text-gray-600">
                               {followedUser.bio}
@@ -1056,12 +1045,7 @@ export function UserProfileComponente({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() =>
-                              onUserClick?.(
-                                followedUser.id,
-                                followedUser.isCreator
-                              )
-                            }
+                            onClick={() => onUserClick?.(followedUser.id)}
                           >
                             Ver perfil
                           </Button>
